@@ -2,6 +2,7 @@ package project.librarymanagement.config;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -10,18 +11,22 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
+    @Value("${app.jwt.secret}")
+    private String secretKey;
+
+    @Value("${app.jwt.expiration-ms}")
+    private long expirationTime;
+
     private Key getSignKey() {
-        String SECRET_KEY = "THIS_IS_SECRET_KEY_FOR_LIBRARY_MANAGEMENT_SYSTEM_123456";
-        return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+        return Keys.hmacShaKeyFor(secretKey.getBytes());
     }
 
     public String generateToken(String username) {
-        long EXPIRATION_TIME = 1000 * 60 * 60 * 24;
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())
                 .setExpiration(
-                        new Date(System.currentTimeMillis() + EXPIRATION_TIME)
+                        new Date(System.currentTimeMillis() + expirationTime)
                 )
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
@@ -42,7 +47,6 @@ public class JwtUtil {
                     .setSigningKey(getSignKey())
                     .build()
                     .parseClaimsJws(token);
-
             return true;
         } catch (JwtException e) {
             return false;

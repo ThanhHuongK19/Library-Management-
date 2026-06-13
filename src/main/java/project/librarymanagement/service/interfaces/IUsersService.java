@@ -1,18 +1,33 @@
 package project.librarymanagement.service.interfaces;
 
 import project.librarymanagement.entity.Users;
+
 import java.util.List;
 
 public interface IUsersService {
+
     List<Users> getAllUsers();
 
-    Users getUserById(long id);
+    Users getUserById(Long userId);
+
+    Users getUserByUsername(String username);
+
+    Users getUserByEmail(String email);
 
     Users createUser(Users user);
 
-    Users updateUser(long id, Users user);
+    Users updateUser(
+            Long userId,
+            Users user
+    );
 
-    void deleteUser(long id);
+    void deleteUser(Long userId);
 
-    Users findByUsername(String username);
+    boolean existsUserByUsername(
+            String username
+    );
+
+    boolean existsUserByEmail(
+            String email
+    );
 }

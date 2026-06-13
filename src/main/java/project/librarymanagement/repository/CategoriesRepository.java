@@ -7,10 +7,14 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface CategoriesRepository extends JpaRepository<Categories, Integer> {
+public interface CategoriesRepository
+        extends JpaRepository<Categories, Long> {
 
-    Optional<Categories> findByCategoryName(String categoryName);
+    Optional<Categories> findCategoryByCategoryName(
+            String categoryName
+    );
 
-    boolean existsByCategoryName(String categoryName);
-    boolean existsBookByCategory(Categories category);
+    boolean existsCategoryByCategoryName(
+            String categoryName
+    );
 }

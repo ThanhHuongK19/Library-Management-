@@ -21,7 +21,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username)
             throws UsernameNotFoundException {
 
-        Users user = usersRepository.findByUsername(username)
+        Users user = usersRepository.findUserByUsername(username)
                 .orElseThrow(() ->
                         new UsernameNotFoundException("User not found")
                 );
@@ -29,7 +29,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         return new User(
                 user.getUsername(),
                 user.getPasswordHash(),
-                user.isActive(),
+                Boolean.TRUE.equals(user.getIsActive()),
                 true,
                 true,
                 true,

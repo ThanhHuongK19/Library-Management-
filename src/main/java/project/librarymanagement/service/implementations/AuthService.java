@@ -46,17 +46,17 @@ public class AuthService implements IAuthService {
     @Override
     public AuthResponse register(RegisterRequest request) {
 
-        if (usersRepository.existsByUsername(request.getUsername())) {
+        if (usersRepository.existsUserByUsername(request.getUsername())) {
             throw new BadRequestException("Username already exists");
         }
 
-        if (usersRepository.existsByEmail(request.getEmail())) {
+        if (usersRepository.existsUserByEmail(request.getEmail())) {
             throw new BadRequestException("Email already exists");
         }
 
-        Roles memberRole = rolesRepository.findByRoleName(RoleName.MEMBER)
+        Roles memberRole = rolesRepository.findRoleByRoleName(RoleName.USER)
                 .orElseThrow(() ->
-                        new BadRequestException("Default role MEM not found")
+                        new BadRequestException("Default role USER not found")
                 );
 
         Set<Roles> roles = new HashSet<>();

@@ -1,13 +1,17 @@
 package project.librarymanagement.controller;
 
+import project.librarymanagement.dto.response.UserResponse;
+import project.librarymanagement.entity.Roles;
 import project.librarymanagement.entity.Users;
+import project.librarymanagement.service.interfaces.IUsersService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import project.librarymanagement.service.interfaces.IUsersService;
 
+import java.util.Set;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
@@ -19,44 +23,106 @@ public class UsersController {
         this.usersService = usersService;
     }
 
-    @GetMapping("/get-all-users")
-    public ResponseEntity<List<Users>> getAllUsers() {
-        return ResponseEntity.ok(usersService.getAllUsers());
+    @GetMapping
+    public ResponseEntity<List<UserResponse>> getAllUsers() {
+        List<UserResponse> users = usersService.getAllUsers()
+                .stream()
+                .map(this::mapToUserResponse)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(users);
     }
 
-    @GetMapping("/get-user/{id}")
-    public ResponseEntity<Users> getUserById(@PathVariable long id) {
-        return ResponseEntity.ok(usersService.getUserById(id));
+    @GetMapping("/{id}")
+    public ResponseEntity<UserResponse> getUserById(
+            @PathVariable Long id
+    ) {
+        return ResponseEntity.ok(
+                mapToUserResponse(usersService.getUserById(id))
+        );
     }
 
-    @PostMapping("/create-user")
-    public ResponseEntity<Users> createUser(
-            @Valid @RequestBody Users user) {
+    @GetMapping("/username/{username}")
+    public ResponseEntity<UserResponse> getUserByUsername(
+            @PathVariable String username
+    ) {
+        return ResponseEntity.ok(
+                mapToUserResponse(usersService.getUserByUsername(username))
+        );
+    }
+
+    @GetMapping("/email/{email}")
+    public ResponseEntity<UserResponse> getUserByEmail(
+            @PathVariable String email
+    ) {
+        return ResponseEntity.ok(
+                mapToUserResponse(usersService.getUserByEmail(email))
+        );
+    }
+
+    @PostMapping
+    public ResponseEntity<UserResponse> createUser(
+            @Valid @RequestBody Users user
+    ) {
+        Users createdUser = usersService.createUser(user);
 
         return new ResponseEntity<>(
-                usersService.createUser(user),
+                mapToUserResponse(createdUser),
                 HttpStatus.CREATED
         );
     }
 
-    @PutMapping("/update-user/{id}")
-    public ResponseEntity<Users> updateUser(
-            @PathVariable long id,
-            @Valid @RequestBody Users user) {
+    @PutMapping("/{id}")
+    public ResponseEntity<UserResponse> updateUser(
+            @PathVariable Long id,
+            @Valid @RequestBody Users user
+    ) {
+        Users updatedUser = usersService.updateUser(id, user);
 
-        return ResponseEntity.ok(usersService.updateUser(id, user));
+        return ResponseEntity.ok(
+                mapToUserResponse(updatedUser)
+        );
     }
 
-    @DeleteMapping("/delete-user/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable long id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(
+            @PathVariable Long id
+    ) {
         usersService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/find-username/{username}")
-    public ResponseEntity<Users> findByUsername(
-            @PathVariable String username) {
+    @GetMapping("/exists/username/{username}")
+    public ResponseEntity<Boolean> existsUserByUsername(
+            @PathVariable String username
+    ) {
+        return ResponseEntity.ok(
+                usersService.existsUserByUsername(username)
+        );
+    }
 
-        return ResponseEntity.ok(usersService.findByUsername(username));
+    @GetMapping("/exists/email/{email}")
+    public ResponseEntity<Boolean> existsUserByEmail(
+            @PathVariable String email
+    ) {
+        return ResponseEntity.ok(
+                usersService.existsUserByEmail(email)
+        );
+    }
+
+    private UserResponse mapToUserResponse(Users user) {
+        Set<String> roles = user.getRoles()
+                .stream()
+                .map(role -> role.getRoleName().name())
+                .collect(Collectors.toSet());
+
+        return new UserResponse(
+                user.getUserId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getFullName(),
+                user.getIsActive(),
+                roles
+        );
     }
 }

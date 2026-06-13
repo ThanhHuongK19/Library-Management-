@@ -1,11 +1,11 @@
 package project.librarymanagement.controller;
 
 import project.librarymanagement.entity.Categories;
+import project.librarymanagement.service.interfaces.ICategoriesService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import project.librarymanagement.service.interfaces.ICategoriesService;
 
 import java.util.List;
 
@@ -15,25 +15,44 @@ public class CategoriesController {
 
     private final ICategoriesService categoriesService;
 
-    public CategoriesController(ICategoriesService categoriesService) {
+    public CategoriesController(
+            ICategoriesService categoriesService
+    ) {
         this.categoriesService = categoriesService;
     }
 
-    @GetMapping("/get-all-categories")
+    @GetMapping
     public ResponseEntity<List<Categories>> getAllCategories() {
-        return ResponseEntity.ok(categoriesService.getAllCategories());
+
+        return ResponseEntity.ok(
+                categoriesService.getAllCategories()
+        );
     }
 
-    @GetMapping("/get-category/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Categories> getCategoryById(
-            @PathVariable int id) {
+            @PathVariable Long id
+    ) {
 
-        return ResponseEntity.ok(categoriesService.getCategoryById(id));
+        return ResponseEntity.ok(
+                categoriesService.getCategoryById(id)
+        );
     }
 
-    @PostMapping("/create-category")
+    @GetMapping("/name/{categoryName}")
+    public ResponseEntity<Categories> getCategoryByName(
+            @PathVariable String categoryName
+    ) {
+
+        return ResponseEntity.ok(
+                categoriesService.getCategoryByName(categoryName)
+        );
+    }
+
+    @PostMapping
     public ResponseEntity<Categories> createCategory(
-            @Valid @RequestBody Categories category) {
+            @Valid @RequestBody Categories category
+    ) {
 
         return new ResponseEntity<>(
                 categoriesService.createCategory(category),
@@ -41,21 +60,27 @@ public class CategoriesController {
         );
     }
 
-    @PutMapping("/update-category/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<Categories> updateCategory(
-            @PathVariable int id,
-            @Valid @RequestBody Categories category) {
+            @PathVariable Long id,
+            @Valid @RequestBody Categories category
+    ) {
 
         return ResponseEntity.ok(
-                categoriesService.updateCategory(id, category)
+                categoriesService.updateCategory(
+                        id,
+                        category
+                )
         );
     }
 
-    @DeleteMapping("/delete-category/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCategory(
-            @PathVariable int id) {
+            @PathVariable Long id
+    ) {
 
         categoriesService.deleteCategory(id);
+
         return ResponseEntity.noContent().build();
     }
 }

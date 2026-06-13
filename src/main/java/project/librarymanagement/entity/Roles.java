@@ -21,13 +21,13 @@ public class Roles {
   public enum RoleName {
     ADMIN,
     LIBRARIAN,
-    MEMBER
+    USER
   }
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "role_id")
-  private long roleId;
+  private Long roleId;
 
   @Enumerated(EnumType.STRING)
   @Column(name = "role_name")

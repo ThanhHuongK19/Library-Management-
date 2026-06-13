@@ -1,20 +1,56 @@
 package project.librarymanagement.service.interfaces;
 
+import project.librarymanagement.dto.request.CreateBookRequest;
+import project.librarymanagement.dto.request.UpdateBookRequest;
 import project.librarymanagement.entity.Books;
-import java.util.List;
+import project.librarymanagement.entity.Categories;
+import org.springframework.data.domain.Page;
 
 public interface IBooksService {
-    List<Books> getAllBooks();
 
-    Books getBookById(long id);
+    Page<Books> getAllBooks(
+            int page,
+            int size,
+            String sortBy,
+            String sortDir
+    );
 
-    Books createBook(Books book);
+    Books getBookById(Long bookId);
 
-    Books updateBook(long id, Books book);
+    Books createBook(CreateBookRequest request);
 
-    void deleteBook(long id);
+    Books updateBook(Long bookId, UpdateBookRequest request);
 
-    List<Books> searchByTitle(String title);
+    void deleteBook(Long bookId);
 
-    List<Books> searchByAuthor(String author);
+    Books getBookByIsbn(String isbn);
+
+    Page<Books> searchBooksByKeyword(
+            String keyword,
+            int page,
+            int size
+    );
+
+    Page<Books> searchBooksByTitle(
+            String title,
+            int page,
+            int size
+    );
+
+    Page<Books> searchBooksByAuthor(
+            String author,
+            int page,
+            int size
+    );
+
+    Page<Books> findBooksByCategory(
+            Categories category,
+            int page,
+            int size
+    );
+
+    Page<Books> findAvailableBooks(
+            int page,
+            int size
+    );
 }

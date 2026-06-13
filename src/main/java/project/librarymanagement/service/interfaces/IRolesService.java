@@ -1,19 +1,21 @@
 package project.librarymanagement.service.interfaces;
 
 import project.librarymanagement.entity.Roles;
-import java.util.List;
 import project.librarymanagement.entity.Roles.RoleName;
 
+import java.util.List;
+
 public interface IRolesService {
+
     List<Roles> getAllRoles();
 
-    Roles getRoleById(long id);
+    Roles getRoleById(Long roleId);
+
+    Roles getRoleByName(RoleName roleName);
 
     Roles createRole(Roles role);
 
-    Roles updateRole(long id, Roles role);
+    Roles updateRole(Long roleId, Roles role);
 
-    void deleteRole(long id);
-
-    Roles findByRoleName(RoleName roleName);
+    void deleteRole(Long roleId);
 }

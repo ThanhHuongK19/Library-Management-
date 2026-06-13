@@ -3,10 +3,10 @@ package project.librarymanagement.service.implementations;
 import project.librarymanagement.entity.Categories;
 import project.librarymanagement.exception.BadRequestException;
 import project.librarymanagement.exception.ResourceNotFoundException;
-import org.springframework.stereotype.Service;
 import project.librarymanagement.repository.BooksRepository;
 import project.librarymanagement.repository.CategoriesRepository;
 import project.librarymanagement.service.interfaces.ICategoriesService;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -16,8 +16,10 @@ public class CategoriesService implements ICategoriesService {
     private final CategoriesRepository categoriesRepository;
     private final BooksRepository booksRepository;
 
-    public CategoriesService(CategoriesRepository categoriesRepository,
-                             BooksRepository booksRepository) {
+    public CategoriesService(
+            CategoriesRepository categoriesRepository,
+            BooksRepository booksRepository
+    ) {
         this.categoriesRepository = categoriesRepository;
         this.booksRepository = booksRepository;
     }
@@ -28,28 +30,42 @@ public class CategoriesService implements ICategoriesService {
     }
 
     @Override
-    public Categories getCategoryById(int id) {
-        return categoriesRepository.findById(id)
+    public Categories getCategoryById(Long categoryId) {
+        return categoriesRepository.findById(categoryId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
-                                "Category not found with id: " + id
+                                "Category not found with id: "
+                                        + categoryId
                         )
                 );
     }
 
     @Override
-    public Categories createCategory(Categories category) {
+    public Categories getCategoryByName(
+            String categoryName
+    ) {
+        return categoriesRepository
+                .findCategoryByCategoryName(categoryName)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Category not found: "
+                                        + categoryName
+                        )
+                );
+    }
 
-        if (category.getCategoryName() == null
-                || category.getCategoryName().isBlank()) {
-            throw new BadRequestException("Category name cannot be empty");
-        }
-
-        if (categoriesRepository.existsByCategoryName(
-                category.getCategoryName())) {
+    @Override
+    public Categories createCategory(
+            Categories category
+    ) {
+        if (categoriesRepository
+                .existsCategoryByCategoryName(
+                        category.getCategoryName()
+                )) {
 
             throw new BadRequestException(
-                    "Category name already exists"
+                    "Category already exists: "
+                            + category.getCategoryName()
             );
         }
 
@@ -57,22 +73,25 @@ public class CategoriesService implements ICategoriesService {
     }
 
     @Override
-    public Categories updateCategory(int id, Categories category) {
-
-        Categories existingCategory = getCategoryById(id);
-
-        if (category.getCategoryName() == null
-                || category.getCategoryName().isBlank()) {
-            throw new BadRequestException("Category name cannot be empty");
-        }
+    public Categories updateCategory(
+            Long categoryId,
+            Categories category
+    ) {
+        Categories existingCategory =
+                getCategoryById(categoryId);
 
         if (!existingCategory.getCategoryName()
-                .equalsIgnoreCase(category.getCategoryName())
-                && categoriesRepository.existsByCategoryName(
-                category.getCategoryName())) {
+                .equalsIgnoreCase(
+                        category.getCategoryName())
+                &&
+                categoriesRepository
+                        .existsCategoryByCategoryName(
+                                category.getCategoryName()
+                        )) {
 
             throw new BadRequestException(
-                    "Category name already exists"
+                    "Category already exists: "
+                            + category.getCategoryName()
             );
         }
 
@@ -84,15 +103,20 @@ public class CategoriesService implements ICategoriesService {
                 category.getDescription()
         );
 
-        return categoriesRepository.save(existingCategory);
+        return categoriesRepository.save(
+                existingCategory
+        );
     }
 
     @Override
-    public void deleteCategory(int id) {
+    public void deleteCategory(Long categoryId) {
 
-        Categories category = getCategoryById(id);
+        Categories category =
+                getCategoryById(categoryId);
 
-        if (!booksRepository.findByCategory(category).isEmpty()){
+        if (booksRepository
+                .existsBooksByCategory(category)) {
+
             throw new BadRequestException(
                     "Cannot delete category because it contains books"
             );

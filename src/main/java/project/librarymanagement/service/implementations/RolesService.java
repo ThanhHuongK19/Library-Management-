@@ -4,9 +4,9 @@ import project.librarymanagement.entity.Roles;
 import project.librarymanagement.entity.Roles.RoleName;
 import project.librarymanagement.exception.BadRequestException;
 import project.librarymanagement.exception.ResourceNotFoundException;
-import org.springframework.stereotype.Service;
 import project.librarymanagement.repository.RolesRepository;
 import project.librarymanagement.service.interfaces.IRolesService;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -25,19 +25,28 @@ public class RolesService implements IRolesService {
     }
 
     @Override
-    public Roles getRoleById(long id) {
-        return rolesRepository.findById(id)
+    public Roles getRoleById(Long roleId) {
+        return rolesRepository.findById(roleId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
-                                "Role not found with id: " + id
+                                "Role not found with id: " + roleId
+                        )
+                );
+    }
+
+    @Override
+    public Roles getRoleByName(RoleName roleName) {
+        return rolesRepository.findRoleByRoleName(roleName)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Role not found: " + roleName
                         )
                 );
     }
 
     @Override
     public Roles createRole(Roles role) {
-
-        if (rolesRepository.existsByRoleName(role.getRoleName())) {
+        if (rolesRepository.existsRoleByRoleName(role.getRoleName())) {
             throw new BadRequestException(
                     "Role already exists: " + role.getRoleName()
             );
@@ -47,13 +56,11 @@ public class RolesService implements IRolesService {
     }
 
     @Override
-    public Roles updateRole(long id, Roles role) {
-
-        Roles existingRole = getRoleById(id);
+    public Roles updateRole(Long roleId, Roles role) {
+        Roles existingRole = getRoleById(roleId);
 
         if (!existingRole.getRoleName().equals(role.getRoleName())
-                && rolesRepository.existsByRoleName(role.getRoleName())) {
-
+                && rolesRepository.existsRoleByRoleName(role.getRoleName())) {
             throw new BadRequestException(
                     "Role already exists: " + role.getRoleName()
             );
@@ -65,27 +72,8 @@ public class RolesService implements IRolesService {
     }
 
     @Override
-    public void deleteRole(long id) {
-
-        Roles role = getRoleById(id);
-
-        if (role.getUsers() != null && !role.getUsers().isEmpty()) {
-            throw new BadRequestException(
-                    "Cannot delete role because it is assigned to users"
-            );
-        }
-
+    public void deleteRole(Long roleId) {
+        Roles role = getRoleById(roleId);
         rolesRepository.delete(role);
-    }
-
-    @Override
-    public Roles findByRoleName(RoleName roleName) {
-
-        return rolesRepository.findByRoleName(roleName)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Role not found: " + roleName
-                        )
-                );
     }
 }

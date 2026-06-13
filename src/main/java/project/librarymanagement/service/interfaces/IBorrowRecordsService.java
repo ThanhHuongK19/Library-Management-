@@ -1,19 +1,43 @@
 package project.librarymanagement.service.interfaces;
 
 import project.librarymanagement.entity.BorrowRecords;
+import project.librarymanagement.entity.BorrowRecords.BorrowStatus;
 
 import java.util.List;
 
 public interface IBorrowRecordsService {
+
     List<BorrowRecords> getAllBorrowRecords();
 
-    BorrowRecords getBorrowRecordById(long id);
+    BorrowRecords getBorrowRecordById(Long borrowRecordId);
 
-    BorrowRecords borrowBook(long userId, long bookId);
+    BorrowRecords borrowBook(
+            Long userId,
+            Long bookId
+    );
 
-    BorrowRecords returnBook(long borrowRecordId);
+    BorrowRecords returnBook(
+            Long borrowRecordId
+    );
 
-    List<BorrowRecords> getBorrowRecordsByUser(long userId);
+    List<BorrowRecords> getBorrowRecordsByUser(
+            Long userId
+    );
 
-    List<BorrowRecords> getBorrowRecordsByBook(long bookId);
+    List<BorrowRecords> getBorrowRecordsByBook(
+            Long bookId
+    );
+
+    List<BorrowRecords> getBorrowRecordsByStatus(
+            BorrowStatus status
+    );
+
+    List<BorrowRecords> getBorrowRecordsByUserAndStatus(
+            Long userId,
+            BorrowStatus status
+    );
+
+    List<BorrowRecords> getOverdueBorrowRecords();
+
+    void updateOverdueBorrowRecords();
 }

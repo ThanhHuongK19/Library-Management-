@@ -18,18 +18,18 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
 # Van chua run dc tren SWAGGER
-#springdoc:
-#  swagger-ui:
-#    path: /swagger
-#  api-docs:
-#    path: /v3/api-docs
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
 
 server:
   port: 9090
 
 app:
   jwt:
-    secret: ${THIS_IS_SECRET_KEY_FOR_LIBRARY_MANAGEMENT_SYSTEM_123456}
+    secret: THIS_IS_SECRET_KEY_FOR_LIBRARY_MANAGEMENT_SYSTEM_123456
     expiration-ms: 86400000 #ms = 24h
 
 #  secret: ${JWT_SECRET_KEY:my-default-secret-key-please-change}

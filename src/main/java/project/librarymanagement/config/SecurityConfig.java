@@ -1,6 +1,7 @@
 package project.librarymanagement.config;
 
 import org.springframework.context.annotation.*;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -48,17 +49,34 @@ public class SecurityConfig {
                                 "/webjars/**"
                         ).permitAll()
 
-                        // Role ADMIN
+                        // USER, ADMIN, LIBRARIAN đều được xem
+                        .requestMatchers(HttpMethod.GET, "/api/books/**")
+                        .hasAnyRole("USER", "ADMIN", "LIBRARIAN")
+
+                        .requestMatchers(HttpMethod.GET, "/api/categories/**")
+                        .hasAnyRole("USER", "ADMIN", "LIBRARIAN")
+
+                        // ADMIN hoặc LIBRARIAN được quản lý sách, danh mục, mượn trả
+                        .requestMatchers(HttpMethod.POST, "/api/books/**")
+                        .hasAnyRole("ADMIN", "LIBRARIAN")
+
+                        .requestMatchers(HttpMethod.PUT, "/api/books/**")
+                        .hasAnyRole("ADMIN", "LIBRARIAN")
+
+                        .requestMatchers(HttpMethod.DELETE, "/api/books/**")
+                        .hasRole("ADMIN")
+
+                        .requestMatchers(HttpMethod.POST, "/api/categories/**")
+                        .hasAnyRole("ADMIN", "LIBRARIAN")
+
+                        .requestMatchers(HttpMethod.PUT, "/api/categories/**")
+                        .hasAnyRole("ADMIN", "LIBRARIAN")
+
+                        .requestMatchers(HttpMethod.DELETE, "/api/categories/**")
+                        .hasRole("ADMIN")
+
                         .requestMatchers("/api/users/**").hasRole("ADMIN")
                         .requestMatchers("/api/roles/**").hasRole("ADMIN")
-
-                        // ADMIN hoặc LIBRARIAN
-                        .requestMatchers("/api/books/**")
-                        .hasAnyRole("ADMIN", "LIBRARIAN")
-
-                        .requestMatchers("/api/categories/**")
-                        .hasAnyRole("ADMIN", "LIBRARIAN")
-
                         .requestMatchers("/api/borrow-records/**")
                         .hasAnyRole("ADMIN", "LIBRARIAN")
 

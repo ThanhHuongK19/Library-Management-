@@ -2,26 +2,53 @@ package project.librarymanagement.repository;
 
 import project.librarymanagement.entity.Books;
 import project.librarymanagement.entity.Categories;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface BooksRepository extends JpaRepository<Books, Long> {
 
-    Optional<Books> findByIsbn(String isbn);
+    // Find book by ISBN
+    Optional<Books> findBookByIsbn(String isbn);
 
-    boolean existsByIsbn(String isbn);
+    // Check ISBN already exists
+    boolean existsBookByIsbn(String isbn);
 
-    boolean existsByCategory(Categories category);
+    // Check category contains books
+    boolean existsBooksByCategory(Categories category);
 
-    List<Books> findByTitleContainingIgnoreCase(String title);
+    // Search books by title
+    Page<Books> findBooksByTitleContainingIgnoreCase(
+            String title,
+            Pageable pageable
+    );
 
-    List<Books> findByAuthorContainingIgnoreCase(String author);
+    // Search books by author
+    Page<Books> findBooksByAuthorContainingIgnoreCase(
+            String author,
+            Pageable pageable
+    );
 
-    List<Books> findByCategory(Categories category);
+    // Find books by category
+    Page<Books> findBooksByCategory(
+            Categories category,
+            Pageable pageable
+    );
 
-    List<Books> findByQuantityGreaterThan(int quantity);
+    // Find available books
+    Page<Books> findBooksByQuantityGreaterThan(
+            Integer quantity,
+            Pageable pageable
+    );
+
+    // Search books by title or author
+    Page<Books> findBooksByTitleContainingIgnoreCaseOrAuthorContainingIgnoreCase(
+            String title,
+            String author,
+            Pageable pageable
+    );
 }

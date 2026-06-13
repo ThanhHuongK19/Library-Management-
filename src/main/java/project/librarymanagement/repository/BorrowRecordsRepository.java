@@ -3,33 +3,52 @@ package project.librarymanagement.repository;
 import project.librarymanagement.entity.Books;
 import project.librarymanagement.entity.BorrowRecords;
 import project.librarymanagement.entity.Users;
+import project.librarymanagement.entity.BorrowRecords.BorrowStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
 import java.util.List;
-import project.librarymanagement.entity.BorrowRecords.BorrowStatus;
 
 @Repository
-public interface BorrowRecordsRepository extends JpaRepository<BorrowRecords, Long> {
+public interface BorrowRecordsRepository
+        extends JpaRepository<BorrowRecords, Long> {
 
-    List<BorrowRecords> findByUser(Users user);
+    // Get all borrow records of a user
+    List<BorrowRecords> findBorrowRecordsByUser(
+            Users user
+    );
 
-    List<BorrowRecords> findByBook(Books book);
+    // Get all borrow records of a book
+    List<BorrowRecords> findBorrowRecordsByBook(
+            Books book
+    );
 
-    List<BorrowRecords> findByStatus(BorrowStatus status);
+    // Get records by status
+    List<BorrowRecords> findBorrowRecordsByStatus(
+            BorrowStatus status
+    );
 
-    List<BorrowRecords> findByUserAndStatus(Users user, BorrowStatus status);
+    // Get records of a user by status
+    List<BorrowRecords> findBorrowRecordsByUserAndStatus(
+            Users user,
+            BorrowStatus status
+    );
 
-    List<BorrowRecords> findByBookAndStatus(Books book, BorrowStatus status);
-
-    List<BorrowRecords> findByDueDateBeforeAndStatus(
+    // Find overdue(qua han) records
+    List<BorrowRecords> findBorrowRecordsByDueDateBeforeAndStatus(
             Timestamp dueDate,
             BorrowStatus status
     );
 
-    List<BorrowRecords> findByBorrowDateBetween(
+    // Get records between dates
+    List<BorrowRecords> findBorrowRecordsByBorrowDateBetween(
             Timestamp startDate,
             Timestamp endDate
+    );
+
+    // su dung cho admin
+    long countByStatus(
+            BorrowStatus status
     );
 }

@@ -1,66 +1,131 @@
 package project.librarymanagement.controller;
 
+import project.librarymanagement.dto.request.CreateBookRequest;
+import project.librarymanagement.dto.request.UpdateBookRequest;
+import project.librarymanagement.dto.response.BookResponse;
 import project.librarymanagement.entity.Books;
+import project.librarymanagement.service.interfaces.IBooksService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import project.librarymanagement.service.interfaces.IBooksService;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/books")
 public class BooksController {
+
     private final IBooksService booksService;
 
-    public BooksController(IBooksService booksService){
+    public BooksController(IBooksService booksService) {
         this.booksService = booksService;
     }
 
-    @GetMapping("/get-all-books")
-    public ResponseEntity<List<Books>> getAllBooks(){
-        return ResponseEntity.ok(booksService.getAllBooks());
+    @GetMapping
+    public ResponseEntity<Page<BookResponse>> getAllBooks(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "bookId") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir
+    ) {
+        return ResponseEntity.ok(
+                booksService.getAllBooks(page, size, sortBy, sortDir)
+                        .map(this::toBookResponse)
+        );
     }
 
-    @GetMapping("/get-book/{id}")
-    public ResponseEntity<Books> getBookById(@PathVariable long id) {
-        return ResponseEntity.ok(booksService.getBookById(id));
+    @GetMapping("/{id}")
+    public ResponseEntity<BookResponse> getBookById(
+            @PathVariable Long id
+    ) {
+        return ResponseEntity.ok(
+                toBookResponse(booksService.getBookById(id))
+        );
     }
 
-    @PostMapping("/create-book")
-    public ResponseEntity<Books> createBook(@Valid @RequestBody Books book){
+    @GetMapping("/isbn/{isbn}")
+    public ResponseEntity<BookResponse> getBookByIsbn(
+            @PathVariable String isbn
+    ) {
+        return ResponseEntity.ok(
+                toBookResponse(booksService.getBookByIsbn(isbn))
+        );
+    }
+
+    @PostMapping
+    public ResponseEntity<BookResponse> createBook(
+            @Valid @RequestBody CreateBookRequest request
+    ) {
+        Books createdBook = booksService.createBook(request);
+
         return new ResponseEntity<>(
-                booksService.createBook(book),
+                toBookResponse(createdBook),
                 HttpStatus.CREATED
         );
     }
 
-    @PatchMapping("/update-book/{id}")
-    public ResponseEntity<Books> updateBook(
-            @PathVariable long id,
-            @Valid @RequestBody Books book) {
-
-        return ResponseEntity.ok(booksService.updateBook(id, book));
+    @PutMapping("/{id}")
+    public ResponseEntity<BookResponse> updateBook(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateBookRequest request
+    ) {
+        return ResponseEntity.ok(
+                toBookResponse(
+                        booksService.updateBook(id, request)
+                )
+        );
     }
 
-    @DeleteMapping("/delete-book/{id}")
-    public ResponseEntity<Void> deleteBook(@PathVariable long id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteBook(
+            @PathVariable Long id
+    ) {
         booksService.deleteBook(id);
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/search-book/title")
-    public ResponseEntity<List<Books>> searchByTitle(
-            @RequestParam String title) {
-
-        return ResponseEntity.ok(booksService.searchByTitle(title));
+    @GetMapping("/search")
+    public ResponseEntity<Page<BookResponse>> searchBooks(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ResponseEntity.ok(
+                booksService.searchBooksByKeyword(keyword, page, size)
+                        .map(this::toBookResponse)
+        );
     }
 
-    @GetMapping("/search-book/author")
-    public ResponseEntity<List<Books>> searchByAuthor(
-            @RequestParam String author) {
+    @GetMapping("/available")
+    public ResponseEntity<Page<BookResponse>> getAvailableBooks(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ResponseEntity.ok(
+                booksService.findAvailableBooks(page, size)
+                        .map(this::toBookResponse)
+        );
+    }
 
-        return ResponseEntity.ok(booksService.searchByAuthor(author));
+    private BookResponse toBookResponse(Books book) {
+        Long categoryId = null;
+        String categoryName = null;
+
+        if (book.getCategory() != null) {
+            categoryId = book.getCategory().getCategoryId();
+            categoryName = book.getCategory().getCategoryName();
+        }
+
+        return new BookResponse(
+                book.getBookId(),
+                book.getTitle(),
+                book.getAuthor(),
+                book.getIsbn(),
+                book.getQuantity(),
+                book.getPublisher(),
+                book.getPublishYear(),
+                categoryId,
+                categoryName
+        );
     }
 }
