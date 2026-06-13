@@ -1,5 +1,8 @@
 package project.librarymanagement.service.implementations;
 
+import org.springframework.transaction.annotation.Transactional;
+import project.librarymanagement.dto.request.CreateCategoryRequest;
+import project.librarymanagement.dto.request.UpdateCategoryRequest;
 import project.librarymanagement.entity.Categories;
 import project.librarymanagement.exception.BadRequestException;
 import project.librarymanagement.exception.ResourceNotFoundException;
@@ -55,19 +58,31 @@ public class CategoriesService implements ICategoriesService {
     }
 
     @Override
+    @Transactional
     public Categories createCategory(
-            Categories category
+            CreateCategoryRequest request
     ) {
+
         if (categoriesRepository
                 .existsCategoryByCategoryName(
-                        category.getCategoryName()
+                        request.getCategoryName()
                 )) {
 
             throw new BadRequestException(
                     "Category already exists: "
-                            + category.getCategoryName()
+                            + request.getCategoryName()
             );
         }
+
+        Categories category = new Categories();
+
+        category.setCategoryName(
+                request.getCategoryName()
+        );
+
+        category.setDescription(
+                request.getDescription()
+        );
 
         return categoriesRepository.save(category);
     }
@@ -75,37 +90,24 @@ public class CategoriesService implements ICategoriesService {
     @Override
     public Categories updateCategory(
             Long categoryId,
-            Categories category
+            UpdateCategoryRequest request
     ) {
-        Categories existingCategory =
-                getCategoryById(categoryId);
+        Categories existingCategory = getCategoryById(categoryId);
 
         if (!existingCategory.getCategoryName()
-                .equalsIgnoreCase(
-                        category.getCategoryName())
-                &&
-                categoriesRepository
-                        .existsCategoryByCategoryName(
-                                category.getCategoryName()
-                        )) {
-
+                .equalsIgnoreCase(request.getCategoryName())
+                && categoriesRepository.existsCategoryByCategoryName(
+                request.getCategoryName()
+        )) {
             throw new BadRequestException(
-                    "Category already exists: "
-                            + category.getCategoryName()
+                    "Category already exists: " + request.getCategoryName()
             );
         }
 
-        existingCategory.setCategoryName(
-                category.getCategoryName()
-        );
+        existingCategory.setCategoryName(request.getCategoryName());
+        existingCategory.setDescription(request.getDescription());
 
-        existingCategory.setDescription(
-                category.getDescription()
-        );
-
-        return categoriesRepository.save(
-                existingCategory
-        );
+        return categoriesRepository.save(existingCategory);
     }
 
     @Override

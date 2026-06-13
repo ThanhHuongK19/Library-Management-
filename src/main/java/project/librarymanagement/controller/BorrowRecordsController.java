@@ -1,5 +1,6 @@
 package project.librarymanagement.controller;
 
+import project.librarymanagement.dto.response.BorrowRecordResponse;
 import project.librarymanagement.entity.BorrowRecords;
 import project.librarymanagement.entity.BorrowRecords.BorrowStatus;
 import project.librarymanagement.service.interfaces.IBorrowRecordsService;
@@ -8,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/borrow-records")
@@ -22,101 +24,149 @@ public class BorrowRecordsController {
     }
 
     @GetMapping
-    public ResponseEntity<List<BorrowRecords>> getAllBorrowRecords() {
+    public ResponseEntity<List<BorrowRecordResponse>> getAllBorrowRecords() {
         return ResponseEntity.ok(
                 borrowRecordsService.getAllBorrowRecords()
+                        .stream()
+                        .map(this::toBorrowRecordResponse)
+                        .collect(Collectors.toList())
         );
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<BorrowRecords> getBorrowRecordById(
+    public ResponseEntity<BorrowRecordResponse> getBorrowRecordById(
             @PathVariable Long id
     ) {
         return ResponseEntity.ok(
-                borrowRecordsService.getBorrowRecordById(id)
-        );
-    }
-
-    @PostMapping("/borrow")
-    public ResponseEntity<BorrowRecords> borrowBook(
-            @RequestParam Long userId,
-            @RequestParam Long bookId
-    ) {
-        return new ResponseEntity<>(
-                borrowRecordsService.borrowBook(userId, bookId),
-                HttpStatus.CREATED
-        );
-    }
-
-    @PutMapping("/{id}/return")
-    public ResponseEntity<BorrowRecords> returnBook(
-            @PathVariable Long id
-    ) {
-        return ResponseEntity.ok(
-                borrowRecordsService.returnBook(id)
-        );
-    }
-
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<BorrowRecords>> getBorrowRecordsByUser(
-            @PathVariable Long userId
-    ) {
-        return ResponseEntity.ok(
-                borrowRecordsService.getBorrowRecordsByUser(userId)
-        );
-    }
-
-    @GetMapping("/book/{bookId}")
-    public ResponseEntity<List<BorrowRecords>> getBorrowRecordsByBook(
-            @PathVariable Long bookId
-    ) {
-        return ResponseEntity.ok(
-                borrowRecordsService.getBorrowRecordsByBook(bookId)
-        );
-    }
-
-    @GetMapping("/status/{status}")
-    public ResponseEntity<List<BorrowRecords>> getBorrowRecordsByStatus(
-            @PathVariable BorrowStatus status
-    ) {
-        return ResponseEntity.ok(
-                borrowRecordsService.getBorrowRecordsByStatus(status)
-        );
-    }
-
-    @GetMapping("/user/{userId}/status/{status}")
-    public ResponseEntity<List<BorrowRecords>> getBorrowRecordsByUserAndStatus(
-            @PathVariable Long userId,
-            @PathVariable BorrowStatus status
-    ) {
-        return ResponseEntity.ok(
-                borrowRecordsService.getBorrowRecordsByUserAndStatus(
-                        userId,
-                        status
+                toBorrowRecordResponse(
+                        borrowRecordsService.getBorrowRecordById(id)
                 )
         );
     }
 
-    @GetMapping("/overdue")
-    public ResponseEntity<List<BorrowRecords>> getOverdueBorrowRecords() {
-        return ResponseEntity.ok(
-                borrowRecordsService.getOverdueBorrowRecords()
+    // Mượn sách
+    @PostMapping("/borrow")
+    public ResponseEntity<BorrowRecordResponse> borrowBook(
+            @RequestParam Long userId,
+            @RequestParam Long bookId
+    ) {
+        BorrowRecords borrowRecord =
+                borrowRecordsService.borrowBook(userId, bookId);
+
+        return new ResponseEntity<>(
+                toBorrowRecordResponse(borrowRecord),
+                HttpStatus.CREATED
         );
     }
 
-    @PutMapping("/update-overdue")
+    // update status borrowed --> returned
+    @PatchMapping("/{id}/return")
+    public ResponseEntity<BorrowRecordResponse> returnBook(
+            @PathVariable Long id
+    ) {
+        return ResponseEntity.ok(
+                toBorrowRecordResponse(
+                        borrowRecordsService.returnBook(id)
+                )
+        );
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<BorrowRecordResponse>> getBorrowRecordsByUser(
+            @PathVariable Long userId
+    ) {
+        return ResponseEntity.ok(
+                borrowRecordsService.getBorrowRecordsByUser(userId)
+                        .stream()
+                        .map(this::toBorrowRecordResponse)
+                        .collect(Collectors.toList())
+        );
+    }
+
+    @GetMapping("/book/{bookId}")
+    public ResponseEntity<List<BorrowRecordResponse>> getBorrowRecordsByBook(
+            @PathVariable Long bookId
+    ) {
+        return ResponseEntity.ok(
+                borrowRecordsService.getBorrowRecordsByBook(bookId)
+                        .stream()
+                        .map(this::toBorrowRecordResponse)
+                        .collect(Collectors.toList())
+        );
+    }
+
+    @GetMapping("/status/{status}")
+    public ResponseEntity<List<BorrowRecordResponse>> getBorrowRecordsByStatus(
+            @PathVariable BorrowStatus status
+    ) {
+        return ResponseEntity.ok(
+                borrowRecordsService.getBorrowRecordsByStatus(status)
+                        .stream()
+                        .map(this::toBorrowRecordResponse)
+                        .collect(Collectors.toList())
+        );
+    }
+
+    @GetMapping("/user/{userId}/status/{status}")
+    public ResponseEntity<List<BorrowRecordResponse>>
+    getBorrowRecordsByUserAndStatus(
+            @PathVariable Long userId,
+            @PathVariable BorrowStatus status
+    ) {
+        return ResponseEntity.ok(
+                borrowRecordsService
+                        .getBorrowRecordsByUserAndStatus(userId, status)
+                        .stream()
+                        .map(this::toBorrowRecordResponse)
+                        .collect(Collectors.toList())
+        );
+    }
+
+    // Danh sách quá hạn
+    @GetMapping("/overdue")
+    public ResponseEntity<List<BorrowRecordResponse>> getOverdueBorrowRecords() {
+        return ResponseEntity.ok(
+                borrowRecordsService.getOverdueBorrowRecords()
+                        .stream()
+                        .map(this::toBorrowRecordResponse)
+                        .collect(Collectors.toList())
+        );
+    }
+
+    @PatchMapping("/update-overdue")
     public ResponseEntity<Void> updateOverdueBorrowRecords() {
         borrowRecordsService.updateOverdueBorrowRecords();
         return ResponseEntity.noContent().build();
     }
-}
 
-//GET http://localhost:8080/api/borrow-records
-//GET http://localhost:8080/api/borrow-records/1
-//POST http://localhost:8080/api/borrow-records/borrow?userId=2&bookId=1
-//PUT http://localhost:8080/api/borrow-records/1/return
-//GET http://localhost:8080/api/borrow-records/user/2
-//GET http://localhost:8080/api/borrow-records/book/1
-//GET http://localhost:8080/api/borrow-records/status/BORROWED
-//GET http://localhost:8080/api/borrow-records/overdue
-//PUT http://localhost:8080/api/borrow-records/update-overdue
+    private BorrowRecordResponse toBorrowRecordResponse(
+            BorrowRecords record
+    ) {
+        Long userId = null;
+        String username = null;
+        Long bookId = null;
+        String bookTitle = null;
+
+        if (record.getUser() != null) {
+            userId = record.getUser().getUserId();
+            username = record.getUser().getUsername();
+        }
+
+        if (record.getBook() != null) {
+            bookId = record.getBook().getBookId();
+            bookTitle = record.getBook().getTitle();
+        }
+
+        return new BorrowRecordResponse(
+                record.getId(),
+                userId,
+                username,
+                bookId,
+                bookTitle,
+                record.getBorrowDate(),
+                record.getDueDate(),
+                record.getReturnDate(),
+                record.getStatus()
+        );
+    }
+}

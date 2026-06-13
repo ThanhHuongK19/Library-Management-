@@ -1,5 +1,7 @@
 package project.librarymanagement.service.implementations;
 
+import org.springframework.transaction.annotation.Transactional;
+import project.librarymanagement.dto.request.UpdateUserRequest;
 import project.librarymanagement.entity.Users;
 import project.librarymanagement.exception.BadRequestException;
 import project.librarymanagement.exception.ResourceNotFoundException;
@@ -104,74 +106,49 @@ public class UsersService implements IUsersService {
     @Override
     public Users updateUser(
             Long userId,
-            Users user
+            UpdateUserRequest request
     ) {
-        Users existingUser =
-                getUserById(userId);
+        Users existingUser = getUserById(userId);
 
-        if (!existingUser.getUsername()
-                .equals(user.getUsername())
-                &&
-                usersRepository.existsUserByUsername(
-                        user.getUsername()
-                )) {
-
-            throw new BadRequestException(
-                    "Username already exists"
-            );
+        if (!existingUser.getUsername().equals(request.getUsername())
+                && usersRepository.existsUserByUsername(request.getUsername())) {
+            throw new BadRequestException("Username already exists");
         }
 
-        if (!existingUser.getEmail()
-                .equals(user.getEmail())
-                &&
-                usersRepository.existsUserByEmail(
-                        user.getEmail()
-                )) {
-
-            throw new BadRequestException(
-                    "Email already exists"
-            );
+        if (!existingUser.getEmail().equals(request.getEmail())
+                && usersRepository.existsUserByEmail(request.getEmail())) {
+            throw new BadRequestException("Email already exists");
         }
 
-        existingUser.setUsername(
-                user.getUsername()
-        );
+        existingUser.setUsername(request.getUsername());
+        existingUser.setEmail(request.getEmail());
+        existingUser.setFullName(request.getFullName());
+        existingUser.setIsActive(request.getIsActive());
 
-        existingUser.setEmail(
-                user.getEmail()
-        );
-
-        existingUser.setFullName(
-                user.getFullName()
-        );
-
-        existingUser.setIsActive(
-                user.getIsActive()
-        );
-
-        return usersRepository.save(
-                existingUser
-        );
+        return usersRepository.save(existingUser);
     }
 
     @Override
-    public void deleteUser(
-            Long userId
-    ) {
-        Users user =
-                getUserById(userId);
+    @Transactional
+    public void deleteUser(Long userId) {
 
-        usersRepository.delete(user);
+        Users user = getUserById(userId);
+
+        if (!Boolean.TRUE.equals(user.getIsActive())) {
+            throw new BadRequestException(
+                    "User is already inactive"
+            );
+        }
+
+        user.setIsActive(false);
+
+        usersRepository.save(user);
     }
 
     @Override
-    public boolean existsUserByUsername(
-            String username
-    ) {
+    public boolean existsUserByUsername(String username) {
         return usersRepository
-                .existsUserByUsername(
-                        username
-                );
+                .existsUserByUsername(username);
     }
 
     @Override

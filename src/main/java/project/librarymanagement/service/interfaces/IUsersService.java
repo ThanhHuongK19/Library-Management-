@@ -1,5 +1,6 @@
 package project.librarymanagement.service.interfaces;
 
+import project.librarymanagement.dto.request.UpdateUserRequest;
 import project.librarymanagement.entity.Users;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public interface IUsersService {
 
     Users updateUser(
             Long userId,
-            Users user
+            UpdateUserRequest request
     );
 
     void deleteUser(Long userId);

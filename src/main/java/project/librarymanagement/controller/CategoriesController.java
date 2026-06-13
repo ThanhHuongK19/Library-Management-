@@ -1,5 +1,8 @@
 package project.librarymanagement.controller;
 
+import project.librarymanagement.dto.request.CreateCategoryRequest;
+import project.librarymanagement.dto.request.UpdateCategoryRequest;
+import project.librarymanagement.dto.response.CategoryResponse;
 import project.librarymanagement.entity.Categories;
 import project.librarymanagement.service.interfaces.ICategoriesService;
 import jakarta.validation.Valid;
@@ -8,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/categories")
@@ -22,54 +26,63 @@ public class CategoriesController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Categories>> getAllCategories() {
+    public ResponseEntity<List<CategoryResponse>> getAllCategories() {
 
-        return ResponseEntity.ok(
+        List<CategoryResponse> categories =
                 categoriesService.getAllCategories()
-        );
+                        .stream()
+                        .map(this::toCategoryResponse)
+                        .collect(Collectors.toList());
+
+        return ResponseEntity.ok(categories);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Categories> getCategoryById(
+    public ResponseEntity<CategoryResponse> getCategoryById(
             @PathVariable Long id
     ) {
 
         return ResponseEntity.ok(
-                categoriesService.getCategoryById(id)
+                toCategoryResponse(
+                        categoriesService.getCategoryById(id)
+                )
         );
     }
 
     @GetMapping("/name/{categoryName}")
-    public ResponseEntity<Categories> getCategoryByName(
+    public ResponseEntity<CategoryResponse> getCategoryByName(
             @PathVariable String categoryName
     ) {
 
         return ResponseEntity.ok(
-                categoriesService.getCategoryByName(categoryName)
+                toCategoryResponse(
+                        categoriesService.getCategoryByName(categoryName)
+                )
         );
     }
 
     @PostMapping
-    public ResponseEntity<Categories> createCategory(
-            @Valid @RequestBody Categories category
+    public ResponseEntity<CategoryResponse> createCategory(
+            @Valid @RequestBody CreateCategoryRequest request
     ) {
 
+        Categories createdCategory =
+                categoriesService.createCategory(request);
+
         return new ResponseEntity<>(
-                categoriesService.createCategory(category),
+                toCategoryResponse(createdCategory),
                 HttpStatus.CREATED
         );
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Categories> updateCategory(
+    @PatchMapping("/{id}")
+    public ResponseEntity<CategoryResponse> updateCategory(
             @PathVariable Long id,
-            @Valid @RequestBody Categories category
+            @Valid @RequestBody UpdateCategoryRequest request
     ) {
-
         return ResponseEntity.ok(
-                categoriesService.updateCategory(
-                        id,
-                        category
+                toCategoryResponse(
+                        categoriesService.updateCategory(id, request)
                 )
         );
     }
@@ -82,5 +95,15 @@ public class CategoriesController {
         categoriesService.deleteCategory(id);
 
         return ResponseEntity.noContent().build();
+    }
+
+    private CategoryResponse toCategoryResponse(
+            Categories category
+    ) {
+        return new CategoryResponse(
+                category.getCategoryId(),
+                category.getCategoryName(),
+                category.getDescription()
+        );
     }
 }

@@ -1,5 +1,7 @@
 package project.librarymanagement.service.interfaces;
 
+import project.librarymanagement.dto.request.CreateCategoryRequest;
+import project.librarymanagement.dto.request.UpdateCategoryRequest;
 import project.librarymanagement.entity.Categories;
 
 import java.util.List;
@@ -12,11 +14,11 @@ public interface ICategoriesService {
 
     Categories getCategoryByName(String categoryName);
 
-    Categories createCategory(Categories category);
+    Categories createCategory(CreateCategoryRequest request);
 
     Categories updateCategory(
             Long categoryId,
-            Categories category
+            UpdateCategoryRequest request
     );
 
     void deleteCategory(Long categoryId);

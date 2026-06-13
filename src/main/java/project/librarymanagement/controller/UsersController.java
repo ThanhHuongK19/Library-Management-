@@ -1,5 +1,6 @@
 package project.librarymanagement.controller;
 
+import project.librarymanagement.dto.request.UpdateUserRequest;
 import project.librarymanagement.dto.response.UserResponse;
 import project.librarymanagement.entity.Roles;
 import project.librarymanagement.entity.Users;
@@ -72,12 +73,12 @@ public class UsersController {
         );
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<UserResponse> updateUser(
             @PathVariable Long id,
-            @Valid @RequestBody Users user
+            @Valid @RequestBody UpdateUserRequest request
     ) {
-        Users updatedUser = usersService.updateUser(id, user);
+        Users updatedUser = usersService.updateUser(id, request);
 
         return ResponseEntity.ok(
                 mapToUserResponse(updatedUser)

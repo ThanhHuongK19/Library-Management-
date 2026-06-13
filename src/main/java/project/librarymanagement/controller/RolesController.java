@@ -29,7 +29,7 @@ public class RolesController {
         return ResponseEntity.ok(rolesService.getRoleById(id));
     }
 
-    @PutMapping("/update-role/{id}")
+    @PatchMapping("/update-role/{id}")
     public ResponseEntity<Roles> updateRole(
             @PathVariable Long id,
             @Valid @RequestBody Roles role) {

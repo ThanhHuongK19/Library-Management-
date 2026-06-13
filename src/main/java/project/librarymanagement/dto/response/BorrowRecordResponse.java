@@ -1,7 +1,13 @@
 package project.librarymanagement.dto.response;
 
-import java.security.Timestamp;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import project.librarymanagement.entity.BorrowRecords.BorrowStatus;
 
+import java.sql.Timestamp;
+
+@Getter
+@AllArgsConstructor
 public class BorrowRecordResponse {
 
     private Long id;
@@ -16,5 +22,5 @@ public class BorrowRecordResponse {
     private Timestamp dueDate;
     private Timestamp returnDate;
 
-    private String status;
+    private BorrowStatus status;
 }
