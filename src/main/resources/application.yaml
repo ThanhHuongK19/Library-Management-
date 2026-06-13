@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: librarymanagement
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/LibraryManagementDB
+    username: postgres
+    password: 2005
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+# Van chua run dc tren SWAGGER
+#springdoc:
+#  swagger-ui:
+#    path: /swagger
+#  api-docs:
+#    path: /v3/api-docs
+
+server:
+  port: 9090
+
+app:
+  jwt:
+    secret: ${THIS_IS_SECRET_KEY_FOR_LIBRARY_MANAGEMENT_SYSTEM_123456}
+    expiration-ms: 86400000 #ms = 24h
+
+#  secret: ${JWT_SECRET_KEY:my-default-secret-key-please-change}
