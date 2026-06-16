@@ -22,4 +22,6 @@ public interface ICategoriesService {
     );
 
     void deleteCategory(Long categoryId);
+
+    List<Categories> searchCategories(String keyword);
 }

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quản Lý Mượn Trả Sách</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { primary: '#2563eb', ink: '#0f172a' },
+                    boxShadow: { soft: '0 18px 45px -28px rgba(15, 23, 42, 0.45)' }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-800 antialiased">
+<nav class="sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-slate-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="h-16 flex items-center justify-between gap-4">
+            <a th:href="@{/home}" class="flex items-center gap-2 text-xl font-extrabold text-primary tracking-tight">
+                <span class="grid place-items-center w-9 h-9 rounded-2xl bg-blue-50 border border-blue-100">📚</span>
+                <span class="hidden sm:inline">Library Management</span>
+            </a>
+
+            <div class="hidden md:flex items-center gap-1 text-sm font-semibold">
+                <a th:href="@{/home}" class="px-3 py-2 rounded-xl text-slate-600 hover:text-primary hover:bg-blue-50 transition">Trang chủ</a>
+                <a th:href="@{/books}" class="px-3 py-2 rounded-xl text-slate-600 hover:text-primary hover:bg-blue-50 transition">Sách</a>
+                <a sec:authorize="hasRole('USER')" th:href="@{/borrow-records}" class="px-3 py-2 rounded-xl text-slate-600 hover:text-primary hover:bg-blue-50 transition">Lịch sử mượn</a>
+                <a sec:authorize="hasAnyRole('ADMIN')" th:href="@{/categories}" class="px-3 py-2 rounded-xl text-slate-600 hover:text-primary hover:bg-blue-50 transition">Thể loại</a>
+                <a sec:authorize="hasAnyRole('ADMIN')" th:href="@{/admin/dashboard}" class="px-3 py-2 rounded-xl text-slate-600 hover:text-primary hover:bg-blue-50 transition">Dashboard</a>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <th:block sec:authorize="isAnonymous()">
+                    <a th:href="@{/login}" class="text-sm font-semibold text-slate-600 hover:text-primary transition">Đăng nhập</a>
+                    <a th:href="@{/register}" class="hidden sm:inline-flex items-center justify-center px-4 py-2 text-sm font-bold text-white bg-primary hover:bg-blue-700 rounded-xl shadow-sm transition">Đăng ký</a>
+                </th:block>
+                <th:block sec:authorize="isAuthenticated()">
+                    <span class="hidden sm:block text-sm text-slate-500">Xin chào, <b class="text-primary" sec:authentication="name">User</b></span>
+                    <form th:action="@{/logout}" method="POST" class="inline">
+                        <button type="submit" class="px-3 py-2 text-sm font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-xl transition">Đăng xuất</button>
+                    </form>
+                </th:block>
+            </div>
+        </div>
+    </div>
+</nav>
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div th:if="${param.success != null && param.success[0] == 'Borrowed'}" class="mb-4 p-4 bg-blue-50 border border-blue-200 text-blue-700 rounded-2xl text-sm font-semibold shadow-sm">🎉 Đã đăng ký mượn sách thành công!</div>
+    <div th:if="${param.success != null && param.success[0] == 'Returned'}" class="mb-4 p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-2xl text-sm font-semibold shadow-sm">🎉 Hệ thống đã nhận lại sách và cập nhật số kho thành công!</div>
+    <div th:if="${param.success != null && param.success[0] == 'OverdueUpdated'}" class="mb-4 p-4 bg-amber-50 border border-amber-200 text-amber-700 rounded-2xl text-sm font-semibold shadow-sm">🔄 Đã thực hiện quét và cập nhật trạng thái các phiếu quá hạn!</div>
+    <div th:if="${param.error}" class="mb-4 p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl text-sm font-semibold shadow-sm">⚠️ Thao tác thất bại! Vui lòng kiểm tra lại thông tin bản ghi.</div>
+
+    <section class="mb-8 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5">
+        <div>
+            <p class="text-sm font-bold text-primary mb-2">Quản lý mượn trả</p>
+            <h1 class="text-3xl font-black text-ink" th:text="${isUserView} ? 'Sách tôi đang mượn' : 'Nhật ký mượn & trả sách'">Tiêu đề</h1>
+            <p class="mt-2 text-sm text-slate-500" th:text="${isUserView} ? 'Danh sách theo dõi chi tiết lịch sử mượn và trả sách cá nhân của bạn.' : 'Hệ thống quản lý và phê duyệt trạng thái mượn trả sách toàn viện.'"></p>
+        </div>
+        <div class="flex flex-wrap gap-2" th:if="${!isUserView}">
+            <a th:href="@{/borrow-records/borrow}" class="bg-primary hover:bg-blue-700 text-white px-5 py-3 rounded-2xl text-sm font-bold transition shadow-sm">+ Cho mượn tại quầy</a>
+            <form th:action="@{/borrow-records/update-overdue}" method="POST"><button type="submit" class="bg-amber-500 hover:bg-amber-600 text-white px-5 py-3 rounded-2xl text-sm font-bold transition shadow-sm">🕒 Quét quá hạn</button></form>
+        </div>
+    </section>
+
+    <section class="mb-6 flex flex-wrap gap-2 items-center bg-white p-3 rounded-[1.5rem] border border-slate-200 shadow-sm">
+        <span class="text-xs font-black text-slate-400 uppercase tracking-wider px-2">Bộ lọc nhanh:</span>
+        <a th:href="@{/borrow-records}" th:class="${selectedStatus == null} ? 'bg-primary text-white px-3 py-2 rounded-xl text-xs font-bold transition shadow-sm' : 'bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-2 rounded-xl text-xs font-bold transition'">Tất cả phiếu</a>
+        <a th:each="status : ${statuses}" th:href="@{/borrow-records(status=${status})}" th:text="${status}" th:class="${selectedStatus == status} ? 'bg-primary text-white px-3 py-2 rounded-xl text-xs font-bold transition shadow-sm' : 'bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-2 rounded-xl text-xs font-bold transition'"></a>
+    </section>
+
+    <section class="bg-white shadow-soft rounded-[1.75rem] overflow-hidden border border-slate-200">
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-left">
+                <thead class="bg-slate-50 border-b border-slate-200">
+                <tr><th class="px-6 py-4 text-xs font-black text-slate-500 uppercase">Mã phiếu</th><th th:if="${!isUserView}" class="px-6 py-4 text-xs font-black text-slate-500 uppercase">Người mượn</th><th class="px-6 py-4 text-xs font-black text-slate-500 uppercase">Tiêu đề sách</th><th class="px-6 py-4 text-xs font-black text-slate-500 uppercase">Ngày mượn</th><th class="px-6 py-4 text-xs font-black text-slate-500 uppercase">Hạn trả</th><th class="px-6 py-4 text-xs font-black text-slate-500 uppercase">Trạng thái</th><th th:if="${!isUserView}" class="px-6 py-4 text-right text-xs font-black text-slate-500 uppercase">Thao tác</th></tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 bg-white text-sm">
+                <tr th:each="record : ${records}" class="hover:bg-blue-50/30 transition">
+                    <td class="px-6 py-5 whitespace-nowrap font-black text-ink" th:text="'#' + ${record.id}">#1</td>
+                    <td th:if="${!isUserView}" class="px-6 py-5 whitespace-nowrap text-slate-600 font-semibold" th:text="${record.username}">Người mượn</td>
+                    <td class="px-6 py-5 whitespace-nowrap text-ink font-black" th:text="${record.bookTitle}">Tên sách</td>
+                    <td class="px-6 py-5 whitespace-nowrap text-slate-500" th:text="${#dates.format(record.borrowDate, 'dd/MM/yyyy HH:mm')}">01/01/2026</td>
+                    <td class="px-6 py-5 whitespace-nowrap text-slate-500" th:text="${#dates.format(record.dueDate, 'dd/MM/yyyy')}">15/01/2026</td>
+                    <td class="px-6 py-5 whitespace-nowrap"><span th:if="${record.status.name() == 'BORROWED'}" class="px-3 py-1.5 text-xs font-black bg-blue-50 text-blue-700 rounded-full border border-blue-100">Đang mượn</span><span th:if="${record.status.name() == 'RETURNED'}" class="px-3 py-1.5 text-xs font-black bg-emerald-50 text-emerald-700 rounded-full border border-emerald-100">Đã trả sách</span><span th:if="${record.status.name() == 'OVERDUE'}" class="px-3 py-1.5 text-xs font-black bg-rose-50 text-rose-700 rounded-full border border-rose-100">Quá hạn trả</span></td>
+                    <td th:if="${!isUserView}" class="px-6 py-5 whitespace-nowrap text-right font-medium"><form th:if="${record.status.name() != 'RETURNED'}" th:action="@{/borrow-records/{id}/return(id=${record.id})}" method="POST" class="inline-block" onclick="return confirm('Xác nhận độc giả đã mang trả cuốn sách này? Quy trình sẽ cập nhật lại kho số lượng.');"><button type="submit" class="text-primary bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-xl transition text-xs font-black">Xác nhận trả</button></form><span th:if="${record.status.name() == 'RETURNED'}" class="text-xs text-slate-400 italic" th:text="'Trả vào: ' + ${#dates.format(record.returnDate, 'dd/MM/yyyy')}"></span></td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(records)}"><td th:colspan="${isUserView} ? 5 : 7" class="px-6 py-16 text-center text-slate-400"><div class="text-3xl mb-2">📭</div>Không tìm thấy bản ghi dữ liệu lịch sử mượn trả nào phù hợp.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+</body>
+</html>

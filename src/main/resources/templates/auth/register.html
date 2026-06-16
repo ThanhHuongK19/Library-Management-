@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đăng Ký Tài Khoản - Thư Viện</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 font-sans min-h-screen flex items-center justify-center p-4">
+
+<div class="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+    <div class="text-center mb-8">
+        <h2 class="text-3xl font-bold text-gray-900 tracking-tight">Tạo tài khoản mới</h2>
+        <p class="text-sm text-gray-500 mt-2">Đăng ký để sử dụng các dịch vụ của thư viện</p>
+    </div>
+
+    <div th:if="${errorMessage}" class="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+        <span th:text="${errorMessage}">Đăng ký thất bại!</span>
+    </div>
+
+    <form th:action="@{/register}" th:object="${registerRequest}" method="post" class="space-y-5">
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Tên tài khoản (Username)</label>
+            <input type="text" th:field="*{username}" required="required"
+                   class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition outline-none text-gray-800"
+                   placeholder="Nhập tên tài khoản"/>
+            <p th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="text-xs text-red-500 mt-1"></p>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Địa chỉ Email</label>
+            <input type="email" th:field="*{email}" required="required"
+                   class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition outline-none text-gray-800"
+                   placeholder="example@gmail.com"/>
+            <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-xs text-red-500 mt-1"></p>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Mật khẩu</label>
+            <input type="password" th:field="*{password}" required="required"
+                   class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition outline-none text-gray-800"
+                   placeholder="••••••••"/>
+            <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="text-xs text-red-500 mt-1"></p>
+        </div>
+
+        <button type="submit"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl shadow-md transition mt-2">
+            Đăng ký tài khoản
+        </button>
+    </form>
+
+    <div class="text-center mt-6">
+        <p class="text-sm text-gray-600">
+            Đã có tài khoản?
+            <a th:href="@{/login}" class="text-blue-600 hover:underline font-medium">Đăng nhập</a>
+        </p>
+        <p class="text-xs text-gray-400 mt-4">
+            <a th:href="@{/home}" class="hover:text-gray-600 transition">← Quay lại trang chủ</a>
+        </p>
+    </div>
+</div>
+
+</body>
+</html>

@@ -126,4 +126,9 @@ public class CategoriesService implements ICategoriesService {
 
         categoriesRepository.delete(category);
     }
+
+    @Override
+    public List<Categories> searchCategories(String keyword) {
+        return categoriesRepository.findByCategoryNameContainingIgnoreCase(keyword);
+    }
 }

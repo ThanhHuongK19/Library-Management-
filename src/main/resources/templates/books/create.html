@@ -1,0 +1,164 @@
+<!--<!DOCTYPE html>-->
+<!--<html xmlns:th="http://www.thymeleaf.org" lang="vi">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8" />-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0" />-->
+<!--    <title>Thêm Sách Mới</title>-->
+<!--    <script src="https://cdn.tailwindcss.com"></script>-->
+<!--</head>-->
+<!--<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">-->
+
+<!--<div class="max-w-xl w-full bg-white rounded-2xl shadow-md p-8 border border-gray-100 my-10">-->
+<!--    <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">Thêm Sách Vào Thư Viện</h2>-->
+
+<!--    <div th:if="${errorMessage}" class="mb-4 bg-red-50 border border-red-200 text-red-600 p-3 rounded-lg text-sm" th:text="${errorMessage}"></div>-->
+
+<!--    <form th:action="@{/books/create}" th:object="${createBookRequest}" method="post" class="space-y-5">-->
+
+<!--        <div>-->
+<!--            <label class="block text-sm font-medium text-gray-700 mb-1">Tiêu đề sách <span class="text-red-500">*</span></label>-->
+<!--            <input type="text" th:field="*{title}" required class="w-full px-4 py-2.5 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-gray-800"/>-->
+<!--            <p th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="text-xs text-red-500 mt-1"></p>-->
+<!--        </div>-->
+
+<!--        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">-->
+<!--            <div>-->
+<!--                <label class="block text-sm font-medium text-gray-700 mb-1">Tác giả <span class="text-red-500">*</span></label>-->
+<!--                <input type="text" th:field="*{author}" required class="w-full px-4 py-2.5 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-gray-800"/>-->
+<!--                <p th:if="${#fields.hasErrors('author')}" th:errors="*{author}" class="text-xs text-red-500 mt-1"></p>-->
+<!--            </div>-->
+<!--            <div>-->
+<!--                <label class="block text-sm font-medium text-gray-700 mb-1">Mã ISBN <span class="text-red-500">*</span></label>-->
+<!--                <input type="text" th:field="*{isbn}" required class="w-full px-4 py-2.5 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-gray-800"/>-->
+<!--                <p th:if="${#fields.hasErrors('isbn')}" th:errors="*{isbn}" class="text-xs text-red-500 mt-1"></p>-->
+<!--            </div>-->
+<!--        </div>-->
+
+<!--        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">-->
+<!--            <div>-->
+<!--                <label class="block text-sm font-medium text-gray-700 mb-1">Nhà xuất bản</label>-->
+<!--                <input type="text" th:field="*{publisher}" class="w-full px-4 py-2.5 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-gray-800"/>-->
+<!--                <p th:if="${#fields.hasErrors('publisher')}" th:errors="*{publisher}" class="text-xs text-red-500 mt-1"></p>-->
+<!--            </div>-->
+<!--            <div>-->
+<!--                <label class="block text-sm font-medium text-gray-700 mb-1">Năm xuất bản (1000 - 9999)</label>-->
+<!--                <input type="number" th:field="*{publishYear}" min="1000" max="9999" placeholder="Ví dụ: 2024" class="w-full px-4 py-2.5 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-gray-800"/>-->
+<!--                <p th:if="${#fields.hasErrors('publishYear')}" th:errors="*{publishYear}" class="text-xs text-red-500 mt-1"></p>-->
+<!--            </div>-->
+<!--        </div>-->
+
+<!--        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">-->
+<!--            <div>-->
+<!--                <label class="block text-sm font-medium text-gray-700 mb-1">Danh mục thể loại <span class="text-red-500">*</span></label>-->
+<!--                <select th:field="*{categoryId}" required class="w-full px-4 py-2.5 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-800">-->
+<!--                    <option value="">&#45;&#45; Chọn danh mục &#45;&#45;</option>-->
+<!--                    <option th:each="cat : ${categories}" th:value="${cat.categoryId}" th:text="${cat.categoryName}"></option>-->
+<!--                </select>-->
+<!--                <p th:if="${#fields.hasErrors('categoryId')}" th:errors="*{categoryId}" class="text-xs text-red-500 mt-1"></p>-->
+<!--            </div>-->
+
+<!--            <div>-->
+<!--                <label class="block text-sm font-medium text-gray-700 mb-1">Số lượng kho <span class="text-red-500">*</span></label>-->
+<!--                <input type="number" th:field="*{quantity}" min="0" required class="w-full px-4 py-2.5 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-gray-800"/>-->
+<!--                <p th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}" class="text-xs text-red-500 mt-1"></p>-->
+<!--            </div>-->
+<!--        </div>-->
+
+<!--        <div>-->
+<!--            <label class="block text-sm font-medium text-gray-700 mb-1">Tóm tắt nội dung</label>-->
+<!--            <textarea th:field="*{summary}" rows="3" class="w-full px-4 py-2.5 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-gray-800 resize-none" placeholder="Nhập mô tả ngắn về cuốn sách..."></textarea>-->
+<!--            <p th:if="${#fields.hasErrors('summary')}" th:errors="*{summary}" class="text-xs text-red-500 mt-1"></p>-->
+<!--        </div>-->
+
+<!--        <div class="flex gap-4 pt-4 border-t border-gray-100">-->
+<!--            <a th:href="@{/books}" class="w-1/2 text-center bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 rounded-xl transition">Hủy bỏ</a>-->
+<!--            <button type="submit" class="w-1/2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl shadow-sm transition">Xác nhận thêm</button>-->
+<!--        </div>-->
+<!--    </form>-->
+<!--</div>-->
+
+<!--</body>-->
+<!--</html>-->
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thêm Sách Mới</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { primary: '#2563eb', ink: '#0f172a' },
+                    boxShadow: { soft: '0 18px 45px -28px rgba(15, 23, 42, 0.45)' }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-800 antialiased">
+<nav class="sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-slate-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="h-16 flex items-center justify-between gap-4">
+            <a th:href="@{/home}" class="flex items-center gap-2 text-xl font-extrabold text-primary tracking-tight">
+                <span class="grid place-items-center w-9 h-9 rounded-2xl bg-blue-50 border border-blue-100">📚</span>
+                <span class="hidden sm:inline">Library Management</span>
+            </a>
+
+            <div class="hidden md:flex items-center gap-1 text-sm font-semibold">
+                <a th:href="@{/home}" class="px-3 py-2 rounded-xl text-slate-600 hover:text-primary hover:bg-blue-50 transition">Trang chủ</a>
+                <a th:href="@{/books}" class="px-3 py-2 rounded-xl text-slate-600 hover:text-primary hover:bg-blue-50 transition">Sách</a>
+                <a sec:authorize="hasRole('USER')" th:href="@{/borrow-records}" class="px-3 py-2 rounded-xl text-slate-600 hover:text-primary hover:bg-blue-50 transition">Lịch sử mượn</a>
+                <a sec:authorize="hasAnyRole('ADMIN')" th:href="@{/categories}" class="px-3 py-2 rounded-xl text-slate-600 hover:text-primary hover:bg-blue-50 transition">Thể loại</a>
+                <a sec:authorize="hasAnyRole('ADMIN')" th:href="@{/admin/dashboard}" class="px-3 py-2 rounded-xl text-slate-600 hover:text-primary hover:bg-blue-50 transition">Dashboard</a>            </div>
+
+            <div class="flex items-center gap-3">
+                <th:block sec:authorize="isAnonymous()">
+                    <a th:href="@{/login}" class="text-sm font-semibold text-slate-600 hover:text-primary transition">Đăng nhập</a>
+                    <a th:href="@{/register}" class="hidden sm:inline-flex items-center justify-center px-4 py-2 text-sm font-bold text-white bg-primary hover:bg-blue-700 rounded-xl shadow-sm transition">Đăng ký</a>
+                </th:block>
+                <th:block sec:authorize="isAuthenticated()">
+                    <span class="hidden sm:block text-sm text-slate-500">Xin chào, <b class="text-primary" sec:authentication="name">User</b></span>
+                    <form th:action="@{/logout}" method="POST" class="inline">
+                        <button type="submit" class="px-3 py-2 text-sm font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-xl transition">Đăng xuất</button>
+                    </form>
+                </th:block>
+            </div>
+        </div>
+    </div>
+</nav>
+<main class="max-w-3xl mx-auto px-4 py-10">
+    <div class="mb-6">
+        <a th:href="@{/books}" class="text-sm font-bold text-primary hover:text-blue-700">← Quay lại danh sách sách</a>
+        <h1 class="mt-4 text-3xl font-black text-ink">Thêm sách vào thư viện</h1>
+        <p class="mt-2 text-sm text-slate-500">Nhập thông tin đầu sách mới. Các trường có dấu * là bắt buộc.</p>
+    </div>
+    <section class="bg-white rounded-[1.75rem] shadow-soft border border-slate-200 p-6 sm:p-8">
+        <div th:if="${errorMessage}" class="mb-5 bg-rose-50 border border-rose-200 text-rose-700 p-4 rounded-2xl text-sm font-semibold" th:text="${errorMessage}"></div>
+        <form th:action="@{/books/create}" th:object="${createBookRequest}" method="post" class="space-y-5">
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-2">Tiêu đề sách <span class="text-rose-500">*</span></label>
+                <input type="text" th:field="*{title}" required class="w-full px-4 py-3 border border-slate-300 rounded-2xl outline-none focus:ring-4 focus:ring-blue-100 focus:border-primary text-slate-800 transition"/>
+                <p th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="text-xs text-rose-500 mt-1"></p>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div><label class="block text-sm font-bold text-slate-700 mb-2">Tác giả <span class="text-rose-500">*</span></label><input type="text" th:field="*{author}" required class="w-full px-4 py-3 border border-slate-300 rounded-2xl outline-none focus:ring-4 focus:ring-blue-100 focus:border-primary text-slate-800 transition"/><p th:if="${#fields.hasErrors('author')}" th:errors="*{author}" class="text-xs text-rose-500 mt-1"></p></div>
+                <div><label class="block text-sm font-bold text-slate-700 mb-2">Mã ISBN <span class="text-rose-500">*</span></label><input type="text" th:field="*{isbn}" required class="w-full px-4 py-3 border border-slate-300 rounded-2xl outline-none focus:ring-4 focus:ring-blue-100 focus:border-primary text-slate-800 transition"/><p th:if="${#fields.hasErrors('isbn')}" th:errors="*{isbn}" class="text-xs text-rose-500 mt-1"></p></div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div><label class="block text-sm font-bold text-slate-700 mb-2">Nhà xuất bản</label><input type="text" th:field="*{publisher}" class="w-full px-4 py-3 border border-slate-300 rounded-2xl outline-none focus:ring-4 focus:ring-blue-100 focus:border-primary text-slate-800 transition"/><p th:if="${#fields.hasErrors('publisher')}" th:errors="*{publisher}" class="text-xs text-rose-500 mt-1"></p></div>
+                <div><label class="block text-sm font-bold text-slate-700 mb-2">Năm xuất bản</label><input type="number" th:field="*{publishYear}" min="1000" max="9999" placeholder="Ví dụ: 2024" class="w-full px-4 py-3 border border-slate-300 rounded-2xl outline-none focus:ring-4 focus:ring-blue-100 focus:border-primary text-slate-800 transition"/><p th:if="${#fields.hasErrors('publishYear')}" th:errors="*{publishYear}" class="text-xs text-rose-500 mt-1"></p></div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div><label class="block text-sm font-bold text-slate-700 mb-2">Danh mục thể loại <span class="text-rose-500">*</span></label><select th:field="*{categoryId}" required class="w-full px-4 py-3 border border-slate-300 rounded-2xl outline-none focus:ring-4 focus:ring-blue-100 focus:border-primary bg-white text-slate-800 transition"><option value="">-- Chọn danh mục --</option><option th:each="cat : ${categories}" th:value="${cat.categoryId}" th:text="${cat.categoryName}"></option></select><p th:if="${#fields.hasErrors('categoryId')}" th:errors="*{categoryId}" class="text-xs text-rose-500 mt-1"></p></div>
+                <div><label class="block text-sm font-bold text-slate-700 mb-2">Số lượng kho <span class="text-rose-500">*</span></label><input type="number" th:field="*{quantity}" min="0" required class="w-full px-4 py-3 border border-slate-300 rounded-2xl outline-none focus:ring-4 focus:ring-blue-100 focus:border-primary text-slate-800 transition"/><p th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}" class="text-xs text-rose-500 mt-1"></p></div>
+            </div>
+            <div><label class="block text-sm font-bold text-slate-700 mb-2">Tóm tắt nội dung</label><textarea th:field="*{summary}" rows="4" class="w-full px-4 py-3 border border-slate-300 rounded-2xl outline-none focus:ring-4 focus:ring-blue-100 focus:border-primary text-slate-800 resize-none transition" placeholder="Nhập mô tả ngắn về cuốn sách..."></textarea><p th:if="${#fields.hasErrors('summary')}" th:errors="*{summary}" class="text-xs text-rose-500 mt-1"></p></div>
+            <div class="flex flex-col sm:flex-row gap-3 pt-5 border-t border-slate-100"><a th:href="@{/books}" class="sm:w-1/2 text-center bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-2xl transition">Hủy bỏ</a><button type="submit" class="sm:w-1/2 bg-primary hover:bg-blue-700 text-white font-bold py-3 rounded-2xl shadow-sm transition">Xác nhận thêm</button></div>
+        </form>
+    </section>
+</main>
+</body>
+</html>

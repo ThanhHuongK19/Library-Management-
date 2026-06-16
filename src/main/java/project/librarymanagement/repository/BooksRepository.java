@@ -51,4 +51,7 @@ public interface BooksRepository extends JpaRepository<Books, Long> {
             String author,
             Pageable pageable
     );
+
+    // Count books for dashboard
+    long count();
 }

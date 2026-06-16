@@ -4,8 +4,10 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 @AllArgsConstructor
 public class CreateCategoryRequest {
     @NotBlank(message = "Category name is required")
@@ -14,4 +16,8 @@ public class CreateCategoryRequest {
 
     @Size(max = 500)
     private String description;
+
+    public CreateCategoryRequest() {
+
+    }
 }

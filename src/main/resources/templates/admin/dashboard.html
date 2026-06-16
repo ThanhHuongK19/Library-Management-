@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard Quản Trị</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-50 min-h-screen text-slate-700">
+
+<nav class="sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-slate-200 shadow-sm">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="h-16 flex items-center justify-between gap-4">
+      <a th:href="@{/home}" class="flex items-center gap-2 text-xl font-extrabold text-blue-600">
+        <span class="grid place-items-center w-9 h-9 rounded-2xl bg-blue-50 border border-blue-100">📚</span>
+        <span class="hidden sm:inline">Library Management</span>
+      </a>
+
+      <div class="hidden md:flex items-center gap-1 text-sm font-semibold">
+        <a th:href="@{/home}" class="px-3 py-2 rounded-xl text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition">Trang chủ</a>
+        <a th:href="@{/books}" class="px-3 py-2 rounded-xl text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition">Sách</a>
+        <a sec:authorize="hasRole('USER')" th:href="@{/borrow-records}" class="px-3 py-2 rounded-xl text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition">Lịch sử mượn</a>
+        <a sec:authorize="hasRole('ADMIN')" th:href="@{/categories}" class="px-3 py-2 rounded-xl text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition">Thể loại</a>
+        <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/dashboard}" class="px-3 py-2 rounded-xl text-blue-600 bg-blue-50 transition">Dashboard</a>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <th:block sec:authorize="isAuthenticated()">
+          <span class="hidden sm:block text-sm text-slate-500">
+            Xin chào, <b class="text-blue-600" sec:authentication="name">User</b>
+          </span>
+          <form th:action="@{/logout}" method="POST" class="inline">
+            <button type="submit" class="px-3 py-2 text-sm font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-xl transition">
+              Đăng xuất
+            </button>
+          </form>
+        </th:block>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+  <div class="mb-8">
+    <h1 class="text-3xl font-extrabold text-slate-900">Tổng quan hệ thống</h1>
+    <p class="text-sm text-slate-500 mt-1">Theo dõi nhanh số liệu thư viện và truy cập các chức năng quản trị.</p>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+      <div class="flex items-center justify-between mb-4">
+        <p class="text-xs text-slate-400 uppercase font-bold tracking-wider">Tổng số sách</p>
+        <span class="w-10 h-10 grid place-items-center rounded-xl bg-blue-50 text-xl">📚</span>
+      </div>
+      <h2 class="text-3xl font-extrabold text-blue-600" th:text="${totalBooks}">0</h2>
+    </div>
+
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+      <div class="flex items-center justify-between mb-4">
+        <p class="text-xs text-slate-400 uppercase font-bold tracking-wider">Đang mượn</p>
+        <span class="w-10 h-10 grid place-items-center rounded-xl bg-amber-50 text-xl">⏱️</span>
+      </div>
+      <h2 class="text-3xl font-extrabold text-amber-500" th:text="${activeBorrows}">0</h2>
+    </div>
+
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+      <div class="flex items-center justify-between mb-4">
+        <p class="text-xs text-slate-400 uppercase font-bold tracking-wider">Phiếu quá hạn</p>
+        <span class="w-10 h-10 grid place-items-center rounded-xl bg-rose-50 text-xl">⚠️</span>
+      </div>
+      <h2 class="text-3xl font-extrabold text-rose-600" th:text="${overdueRecords}">0</h2>
+    </div>
+
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+      <div class="flex items-center justify-between mb-4">
+        <p class="text-xs text-slate-400 uppercase font-bold tracking-wider">Người dùng</p>
+        <span class="w-10 h-10 grid place-items-center rounded-xl bg-emerald-50 text-xl">👥</span>
+      </div>
+      <h2 class="text-3xl font-extrabold text-emerald-600" th:text="${totalUsers}">0</h2>
+    </div>
+
+  </div>
+
+  <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+    <h3 class="text-lg font-bold text-slate-900 mb-1">Hành động nhanh</h3>
+    <p class="text-sm text-slate-500 mb-5">Truy cập nhanh các màn hình quản trị chính.</p>
+
+    <div class="flex flex-wrap gap-3">
+      <a th:href="@{/categories}"
+         class="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold shadow-sm transition">
+        Quản lý Thể loại
+      </a>
+
+      <a th:href="@{/books}"
+         class="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold shadow-sm transition">
+        Quản lý Sách
+      </a>
+
+      <a th:href="@{/borrow-records}"
+         class="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold shadow-sm transition">
+        Mượn & trả
+      </a>
+    </div>
+  </div>
+
+</main>
+
+</body>
+</html>

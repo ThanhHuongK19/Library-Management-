@@ -51,4 +51,7 @@ public interface BorrowRecordsRepository
     long countByStatus(
             BorrowStatus status
     );
+
+    // su dung cho qua han
+    long countByStatusAndDueDateBefore(BorrowStatus status, Timestamp date);
 }

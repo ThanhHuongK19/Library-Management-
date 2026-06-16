@@ -1,92 +1,91 @@
 package project.librarymanagement.config;
 
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.*;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.*;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import project.librarymanagement.filter.JwtAuthenticationFilter;
 
 @Configuration
 public class SecurityConfig {
 
+    private static final String ADMIN = "ADMIN";
+    private static final String LIBRARIAN = "LIBRARIAN";
+    private static final String USER = "USER";
+
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    public SecurityConfig(
-            JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(
-            HttpSecurity http) throws Exception {
-
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(
-                                SessionCreationPolicy.STATELESS
-                        )
-                )
+                // Cấu hình Session linh hoạt: Tạo session khi phía Web UI Thymeleaf cần dùng
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+
                 .authorizeHttpRequests(auth -> auth
-
-                        // Auth
-                        .requestMatchers("/api/auth/**").permitAll()
-
-                        // Swagger
+                        // 1. Giao diện Web UI Công khai (Cho phép truy cập trực tiếp từ trình duyệt công khai)
                         .requestMatchers(
-                                "/swagger",
-                                "/swagger/**",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/v3/api-docs/**",
-                                "/webjars/**"
+                                "/", "/home", "/login", "/register",
+                                "/css/**", "/js/**", "/images/**", "/webjars/**",
+                                "/books/**" // 🔥 ĐÃ ĐỒNG BỘ: Cho phép chạy toàn bộ luồng giao diện Sách (list, create, edit) công khai
                         ).permitAll()
 
-                        // USER, ADMIN, LIBRARIAN đều được xem
-                        .requestMatchers(HttpMethod.GET, "/api/books/**")
-                        .hasAnyRole("USER", "ADMIN", "LIBRARIAN")
+                        // 2. Các Endpoint REST API Công khai & Tài liệu Swagger
+                        .requestMatchers(
+                                "/api/auth/**",
+                                "/swagger", "/swagger/**", "/swagger-ui/**", "/swagger-ui.html",
+                                "/v3/api-docs/**"
+                        ).permitAll()
 
-                        .requestMatchers(HttpMethod.GET, "/api/categories/**")
-                        .hasAnyRole("USER", "ADMIN", "LIBRARIAN")
+                        // 3. Phân quyền cho REST API đọc dữ liệu (GET /api/**)
+                        .requestMatchers(HttpMethod.GET, "/api/books/**", "/api/categories/**")
+                        .hasAnyRole(USER, ADMIN, LIBRARIAN)
 
-                        // ADMIN hoặc LIBRARIAN được quản lý sách, danh mục, mượn trả
-                        .requestMatchers(HttpMethod.POST, "/api/books/**")
-                        .hasAnyRole("ADMIN", "LIBRARIAN")
+                        // 4. Phân quyền cho REST API Quản lý dữ liệu (POST, PUT, PATCH, DELETE /api/**)
+                        .requestMatchers(HttpMethod.POST, "/api/books/**", "/api/categories/**").hasAnyRole(ADMIN, LIBRARIAN)
+                        .requestMatchers(HttpMethod.PUT, "/api/books/**", "/api/categories/**").hasAnyRole(ADMIN, LIBRARIAN)
+                        .requestMatchers(HttpMethod.PATCH, "/api/books/**", "/api/categories/**").hasAnyRole(ADMIN, LIBRARIAN) // Thêm bọc PATCH cho API
+                        .requestMatchers(HttpMethod.DELETE, "/api/books/**", "/api/categories/**").hasRole(ADMIN)
 
-                        .requestMatchers(HttpMethod.PUT, "/api/books/**")
-                        .hasAnyRole("ADMIN", "LIBRARIAN")
+                        // 5. Các REST API Quản trị nâng cao
+                        .requestMatchers("/api/users/**", "/api/roles/**").hasRole(ADMIN)
+                        .requestMatchers("/api/borrow-records/**").hasAnyRole(ADMIN, LIBRARIAN)
 
-                        .requestMatchers(HttpMethod.DELETE, "/api/books/**")
-                        .hasRole("ADMIN")
+                        // 6. Giao diện Web UI cần bảo mật (Khi nào bạn làm đến tính năng này thì bật phân quyền sau)
+                        .requestMatchers("/categories/**", "/borrow-records/**").authenticated()
 
-                        .requestMatchers(HttpMethod.POST, "/api/categories/**")
-                        .hasAnyRole("ADMIN", "LIBRARIAN")
-
-                        .requestMatchers(HttpMethod.PUT, "/api/categories/**")
-                        .hasAnyRole("ADMIN", "LIBRARIAN")
-
-                        .requestMatchers(HttpMethod.DELETE, "/api/categories/**")
-                        .hasRole("ADMIN")
-
-                        .requestMatchers("/api/users/**").hasRole("ADMIN")
-                        .requestMatchers("/api/roles/**").hasRole("ADMIN")
-                        .requestMatchers("/api/borrow-records/**")
-                        .hasAnyRole("ADMIN", "LIBRARIAN")
-
-                        // Các request còn lại cần đăng nhập
+                        // Tất cả các request phát sinh còn lại đều cần xác thực
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(
-                        jwtAuthenticationFilter,
-                        UsernamePasswordAuthenticationFilter.class
-                );
+                // Cấu hình Form Login hệ thống dành riêng cho giao diện Web UI
+                .formLogin(form -> form
+                        .loginPage("/login")               // GET /login dẫn đến form đăng nhập UI
+                        .loginProcessingUrl("/perform_login") // URL ngầm để Spring Security hứng POST data từ form login
+                        .defaultSuccessUrl("/home", true)  // Đăng nhập thành công chuyển hướng thẳng về trang chủ UI
+                        .permitAll()
+                )
+                // Cấu hình Đăng xuất dành cho giao diện Web UI
+                .logout(logout -> logout
+                        .logoutUrl("/logout") // Khớp với th:action="@{/logout}"
+                        .logoutSuccessUrl("/home") // Đăng xuất xong chuyển hướng về trang chủ
+                        .invalidateHttpSession(true) // Xóa session trên server
+                        .clearAuthentication(true)   // Xóa quyền trong SecurityContext
+                        .permitAll()
+                )
+                // Đính kèm bộ lọc kiểm tra JWT Token trước cho các đường dẫn REST API (/api/**)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -97,9 +96,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration config) throws Exception {
-
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 }

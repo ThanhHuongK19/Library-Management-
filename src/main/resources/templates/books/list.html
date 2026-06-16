@@ -1,0 +1,265 @@
+<!--<!DOCTYPE html>-->
+<!--<html xmlns:th="http://www.thymeleaf.org"-->
+<!--      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"-->
+<!--      lang="vi">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0" />-->
+<!--    <title>Danh Mục Sách</title>-->
+<!--    <script src="https://cdn.tailwindcss.com"></script>-->
+<!--</head>-->
+<!--<body class="bg-gray-50 min-h-screen">-->
+
+<!--&lt;!&ndash;<nav class="bg-white shadow-sm border-b border-gray-200 p-4">&ndash;&gt;-->
+<!--&lt;!&ndash;    <div class="max-w-7xl mx-auto flex justify-between items-center">&ndash;&gt;-->
+<!--&lt;!&ndash;        <a th:href="@{/home}" class="text-xl font-bold text-blue-600">📚 Library Management</a>&ndash;&gt;-->
+<!--&lt;!&ndash;        <div class="space-x-4 flex items-center">&ndash;&gt;-->
+<!--&lt;!&ndash;            <a th:href="@{/home}" class="text-gray-600 hover:text-blue-600 transition text-sm font-medium">Trang chủ</a>&ndash;&gt;-->
+<!--&lt;!&ndash;            <a th:href="@{/books}" class="text-blue-600 font-bold text-sm">Sách</a>&ndash;&gt;-->
+
+<!--&lt;!&ndash;            <a sec:authorize="hasAnyRole('ADMIN', 'LIBRARIAN')" th:href="@{/borrow-records}" class="text-gray-600 hover:text-blue-600 transition text-sm font-medium">&ndash;&gt;-->
+<!--&lt;!&ndash;                Mượn & Trả (Hệ thống)&ndash;&gt;-->
+<!--&lt;!&ndash;            </a>&ndash;&gt;-->
+
+<!--&lt;!&ndash;            <a sec:authorize="hasRole('USER')" th:href="@{/borrow-records}" class="text-gray-600 hover:text-blue-600 transition text-sm font-medium flex items-center gap-1">&ndash;&gt;-->
+<!--&lt;!&ndash;                ⏱️ Lịch sử mượn sách&ndash;&gt;-->
+<!--&lt;!&ndash;            </a>&ndash;&gt;-->
+<!--&lt;!&ndash;        </div>&ndash;&gt;-->
+<!--&lt;!&ndash;    </div>&ndash;&gt;-->
+<!--&lt;!&ndash;</nav>&ndash;&gt;-->
+
+<!--<nav class="bg-white shadow-sm border-b border-gray-200 p-4">-->
+<!--    <div class="max-w-7xl mx-auto flex justify-between items-center">-->
+<!--        <a th:href="@{/home}" class="text-xl font-bold text-blue-600">📚 Library Management</a>-->
+
+<!--        <div class="space-x-4 flex items-center">-->
+<!--            <a th:href="@{/home}" class="text-gray-600 hover:text-blue-600 transition text-sm font-medium">Trang chủ</a>-->
+<!--            <a th:href="@{/books}" class="text-blue-600 font-bold text-sm">Sách</a>-->
+
+<!--            <a sec:authorize="hasAnyRole('ADMIN', 'LIBRARIAN')"-->
+<!--               th:href="@{/borrow-records}"-->
+<!--               class="text-gray-600 hover:text-blue-600 transition text-sm font-medium">-->
+<!--                Mượn & Trả (Hệ thống)-->
+<!--            </a>-->
+
+<!--            <a sec:authorize="hasRole('USER')"-->
+<!--               th:href="@{/borrow-records}"-->
+<!--               class="text-gray-600 hover:text-blue-600 transition text-sm font-medium flex items-center gap-1">-->
+<!--                ⏱️ Lịch sử mượn sách-->
+<!--            </a>-->
+
+<!--            <form sec:authorize="isAuthenticated()" th:action="@{/logout}" method="POST" class="inline">-->
+<!--                <button type="submit" class="text-gray-500 hover:text-red-600 text-sm font-medium">Đăng xuất</button>-->
+<!--            </form>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</nav>-->
+<!--<main class="max-w-7xl mx-auto px-4 py-8">-->
+
+<!--    <div class="flex justify-between items-center mb-6">-->
+<!--        <div>-->
+<!--            <h1 class="text-2xl font-bold text-gray-900">Kho Thư Viện Sách</h1>-->
+<!--            <p class="text-xs text-gray-400 mt-1">Tìm kiếm, tra cứu và đăng ký mượn đầu sách trực tuyến</p>-->
+<!--        </div>-->
+
+<!--        <a sec:authorize="hasRole('ADMIN')" th:href="@{/books/add}"-->
+<!--           class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium shadow-sm transition">-->
+<!--            + Thêm sách mới-->
+<!--        </a>-->
+<!--    </div>-->
+
+<!--    <form th:action="@{/books}" method="GET" class="mb-6 flex gap-3">-->
+<!--        <input type="text" name="keyword" th:value="${keyword}" placeholder="Tìm sách theo tiêu đề, tác giả, thể loại..."-->
+<!--               class="flex-1 px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none transition shadow-sm bg-white" />-->
+<!--        <button type="submit" class="bg-gray-900 hover:bg-gray-800 text-white px-6 py-2.5 rounded-xl text-sm font-medium transition shadow-sm">-->
+<!--            Tìm kiếm-->
+<!--        </button>-->
+<!--    </form>-->
+
+<!--    <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">-->
+<!--        <table class="min-w-full divide-y divide-gray-200 text-left">-->
+<!--            <thead class="bg-gray-50/70 text-xs font-bold text-gray-500 uppercase tracking-wider">-->
+<!--            <tr>-->
+<!--                <th class="px-6 py-4">Thông tin sách</th>-->
+<!--                <th class="px-6 py-4">Thể loại</th>-->
+<!--                <th class="px-6 py-4">Số lượng</th>-->
+<!--                <th class="px-6 py-4 text-right">Hành động</th>-->
+<!--            </tr>-->
+<!--            </thead>-->
+<!--            <tbody class="divide-y divide-gray-200 text-sm font-medium text-gray-700">-->
+<!--            <tr th:each="book : ${books.content}" class="hover:bg-gray-50/50 transition">-->
+<!--                <td class="px-6 py-4">-->
+<!--                    <div class="font-bold text-gray-900 text-base" th:text="${book.title}">Tiêu đề sách</div>-->
+<!--                    <div class="text-xs text-gray-400 mt-0.5" th:text="'Tác giả: ' + ${book.author}">Tác giả</div>-->
+<!--                </td>-->
+<!--                <td class="px-6 py-4">-->
+<!--                    <span class="bg-gray-100 text-gray-600 text-xs px-2.5 py-1 rounded-lg font-semibold" th:text="${book.categoryName}">Thể loại</span>-->
+<!--                </td>-->
+<!--                <td class="px-6 py-4">-->
+<!--                    <div th:if="${book.quantity > 0}" class="flex items-center gap-1.5 text-emerald-600 text-xs font-bold">-->
+<!--                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>-->
+<!--                        <span th:text="${book.quantity}">0</span> cuốn-->
+<!--                    </div>-->
+<!--                    <div th:if="${book.quantity <= 0}" class="flex items-center gap-1.5 text-red-500 text-xs font-bold">-->
+<!--                        <span class="w-2 h-2 rounded-full bg-red-400"></span>-->
+<!--                        Hết sách tại kho-->
+<!--                    </div>-->
+<!--                </td>-->
+<!--                <td class="px-6 py-4 text-right space-x-2 whitespace-nowrap">-->
+
+<!--                    <a sec:authorize="hasRole('ADMIN')" th:href="@{/books/edit/{id}(id=${book.bookId})}"-->
+<!--                       class="text-blue-600 hover:text-blue-900 bg-blue-50 px-3 py-1.5 rounded-lg text-xs font-semibold transition inline-block">-->
+<!--                        Sửa-->
+<!--                    </a>-->
+<!--                    <a sec:authorize="hasRole('ADMIN')" th:href="@{/books/delete/{id}(id=${book.bookId})}"-->
+<!--                       onclick="return confirm('Bạn có chắc chắn muốn xóa cuốn sách này không?');"-->
+<!--                       class="text-red-600 hover:text-red-900 bg-red-50 px-3 py-1.5 rounded-lg text-xs font-semibold transition inline-block">-->
+<!--                        Xóa-->
+<!--                    </a>-->
+
+<!--                    <span th:if="${book.quantity > 0}">-->
+<!--                        <a sec:authorize="hasAnyRole('ADMIN', 'LIBRARIAN', 'USER')"-->
+<!--                           th:href="@{/borrow-records/borrow(bookId=${book.bookId})}"-->
+<!--                           class="text-white bg-blue-600 hover:bg-blue-700 px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm inline-flex items-center gap-1">-->
+<!--                            📖 Mượn sách-->
+<!--                        </a>-->
+<!--                    </span>-->
+
+<!--                    <span th:if="${book.quantity <= 0}">-->
+<!--                        <button disabled class="bg-gray-200 text-gray-400 px-3.5 py-2 rounded-xl text-xs font-bold cursor-not-allowed">-->
+<!--                            Đã hết sách-->
+<!--                        </button>-->
+<!--                    </span>-->
+
+<!--                </td>-->
+<!--            </tr>-->
+
+<!--            <tr th:if="${books == null || #lists.isEmpty(books.content)}">-->
+<!--                <td colspan="4" class="px-6 py-12 text-center text-sm text-gray-400">-->
+<!--                    <div class="flex flex-col items-center justify-center space-y-2">-->
+<!--                        <span class="text-2xl">🔍</span>-->
+<!--                        <span th:text="${keyword != null && keyword != ''} ? 'Không tìm thấy cuốn sách nào khớp với từ khóa trên.' : 'Kho sách hiện tại đang trống.'"></span>-->
+<!--                        <a th:if="${keyword != null && keyword != ''}" th:href="@{/books}" class="text-blue-500 hover:underline text-xs font-semibold">Xem toàn bộ kho sách</a>-->
+<!--                    </div>-->
+<!--                </td>-->
+<!--            </tr>-->
+<!--            </tbody>-->
+<!--        </table>-->
+<!--    </div>-->
+
+<!--    <div th:if="${books != null && books.totalPages > 1}" class="flex justify-between items-center mt-5 px-1">-->
+<!--        <div class="text-xs text-gray-400 font-medium">-->
+<!--            Trang <span th:text="${books.number + 1}">1</span> / <span th:text="${books.totalPages}">1</span>-->
+<!--        </div>-->
+<!--        <div class="flex gap-2">-->
+<!--            <a th:if="${books.hasPrevious()}" th:href="@{/books(page=${books.number - 1}, keyword=${keyword})}"-->
+<!--               class="px-3.5 py-1.5 bg-white border border-gray-300 rounded-lg text-xs font-semibold text-gray-600 hover:bg-gray-50 transition shadow-sm">-->
+<!--                Trước-->
+<!--            </a>-->
+<!--            <a th:if="${books.hasNext()}" th:href="@{/books(page=${books.number + 1}, keyword=${keyword})}"-->
+<!--               class="px-3.5 py-1.5 bg-white border border-gray-300 rounded-lg text-xs font-semibold text-gray-600 hover:bg-gray-50 transition shadow-sm">-->
+<!--                Sau-->
+<!--            </a>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</main>-->
+
+<!--</body>-->
+<!--</html>-->
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Danh Mục Sách</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { primary: '#2563eb', ink: '#0f172a' },
+                    boxShadow: { soft: '0 18px 45px -28px rgba(15, 23, 42, 0.45)' }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-800 antialiased">
+<nav class="sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-slate-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="h-16 flex items-center justify-between gap-4">
+            <a th:href="@{/home}" class="flex items-center gap-2 text-xl font-extrabold text-primary tracking-tight">
+                <span class="grid place-items-center w-9 h-9 rounded-2xl bg-blue-50 border border-blue-100">📚</span>
+                <span class="hidden sm:inline">Library Management</span>
+            </a>
+
+            <div class="hidden md:flex items-center gap-1 text-sm font-semibold">
+                <a th:href="@{/home}" class="px-3 py-2 rounded-xl text-slate-600 hover:text-primary hover:bg-blue-50 transition">Trang chủ</a>
+                <a th:href="@{/books}" class="px-3 py-2 rounded-xl text-slate-600 hover:text-primary hover:bg-blue-50 transition">Sách</a>
+                <a sec:authorize="hasRole('USER')" th:href="@{/borrow-records}" class="px-3 py-2 rounded-xl text-slate-600 hover:text-primary hover:bg-blue-50 transition">Lịch sử mượn</a>
+                <a sec:authorize="hasAnyRole('ADMIN')" th:href="@{/categories}" class="px-3 py-2 rounded-xl text-slate-600 hover:text-primary hover:bg-blue-50 transition">Thể loại</a>
+                <a sec:authorize="hasAnyRole('ADMIN')" th:href="@{/admin/dashboard}" class="px-3 py-2 rounded-xl text-slate-600 hover:text-primary hover:bg-blue-50 transition">Dashboard</a>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <th:block sec:authorize="isAnonymous()">
+                    <a th:href="@{/login}" class="text-sm font-semibold text-slate-600 hover:text-primary transition">Đăng nhập</a>
+                    <a th:href="@{/register}" class="hidden sm:inline-flex items-center justify-center px-4 py-2 text-sm font-bold text-white bg-primary hover:bg-blue-700 rounded-xl shadow-sm transition">Đăng ký</a>
+                </th:block>
+                <th:block sec:authorize="isAuthenticated()">
+                    <span class="hidden sm:block text-sm text-slate-500">Xin chào, <b class="text-primary" sec:authentication="name">User</b></span>
+                    <form th:action="@{/logout}" method="POST" class="inline">
+                        <button type="submit" class="px-3 py-2 text-sm font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-xl transition">Đăng xuất</button>
+                    </form>
+                </th:block>
+            </div>
+        </div>
+    </div>
+</nav>
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <section class="mb-8 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5">
+        <div>
+            <p class="text-sm font-bold text-primary mb-2">Kho thư viện</p>
+            <h1 class="text-3xl font-black text-ink">Danh mục sách</h1>
+            <p class="text-sm text-slate-500 mt-2">Tìm kiếm, tra cứu và đăng ký mượn đầu sách trực tuyến.</p>
+        </div>
+        <a sec:authorize="hasRole('ADMIN')" th:href="@{/books/create}" class="inline-flex items-center justify-center bg-primary hover:bg-blue-700 text-white px-5 py-3 rounded-2xl text-sm font-bold shadow-sm transition">+ Thêm sách mới</a>
+    </section>
+
+    <form th:action="@{/books}" method="GET" class="mb-6 bg-white border border-slate-200 rounded-[1.5rem] p-3 shadow-sm flex flex-col sm:flex-row gap-3">
+        <input type="text" name="keyword" th:value="${keyword}" placeholder="Tìm sách theo tiêu đề, tác giả, thể loại..." class="flex-1 px-4 py-3 border border-slate-200 rounded-2xl text-sm focus:ring-4 focus:ring-blue-100 focus:border-primary outline-none transition bg-slate-50" />
+        <button type="submit" class="bg-ink hover:bg-slate-800 text-white px-6 py-3 rounded-2xl text-sm font-bold transition shadow-sm">Tìm kiếm</button>
+    </form>
+
+    <section class="bg-white rounded-[1.75rem] border border-slate-200 shadow-soft overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-left">
+                <thead class="bg-slate-50 text-xs font-black text-slate-500 uppercase tracking-wider border-b border-slate-200">
+                <tr><th class="px-6 py-4">Thông tin sách</th><th class="px-6 py-4">Thể loại</th><th class="px-6 py-4">Số lượng</th><th class="px-6 py-4 text-right">Hành động</th></tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-sm">
+                <tr th:each="book : ${books.content}" class="hover:bg-blue-50/30 transition">
+                    <td class="px-6 py-5"><div class="font-black text-ink text-base" th:text="${book.title}">Tiêu đề sách</div><div class="text-xs text-slate-500 mt-1" th:text="'Tác giả: ' + ${book.author}">Tác giả</div></td>
+                    <td class="px-6 py-5"><span class="bg-slate-100 text-slate-700 text-xs px-3 py-1.5 rounded-full font-bold" th:text="${book.categoryName}">Thể loại</span></td>
+                    <td class="px-6 py-5"><div th:if="${book.quantity > 0}" class="inline-flex items-center gap-2 text-emerald-700 bg-emerald-50 border border-emerald-100 px-3 py-1.5 rounded-full text-xs font-black"><span class="w-2 h-2 rounded-full bg-emerald-500"></span><span th:text="${book.quantity}">0</span> cuốn</div><div th:if="${book.quantity <= 0}" class="inline-flex items-center gap-2 text-rose-700 bg-rose-50 border border-rose-100 px-3 py-1.5 rounded-full text-xs font-black"><span class="w-2 h-2 rounded-full bg-rose-500"></span>Hết sách</div></td>
+                    <td class="px-6 py-5 text-right whitespace-nowrap"><div class="inline-flex flex-wrap justify-end gap-2">
+                        <a sec:authorize="hasRole('ADMIN')" th:href="@{/books/edit/{id}(id=${book.bookId})}" class="text-primary bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-xl text-xs font-black transition">Sửa</a>
+                        <a sec:authorize="hasRole('ADMIN')" th:href="@{/books/delete/{id}(id=${book.bookId})}" onclick="return confirm('Bạn có chắc chắn muốn xóa cuốn sách này không?');" class="text-rose-600 bg-rose-50 hover:bg-rose-100 px-3 py-2 rounded-xl text-xs font-black transition">Xóa</a>
+                        <span th:if="${book.quantity > 0}"><a sec:authorize="hasAnyRole('ADMIN', 'LIBRARIAN', 'USER')" th:href="@{/borrow-records/borrow(bookId=${book.bookId})}" class="text-white bg-primary hover:bg-blue-700 px-3.5 py-2 rounded-xl text-xs font-black transition shadow-sm inline-flex items-center gap-1">📖 Mượn sách</a></span>
+                        <span th:if="${book.quantity <= 0}"><button disabled class="bg-slate-200 text-slate-400 px-3.5 py-2 rounded-xl text-xs font-black cursor-not-allowed">Đã hết sách</button></span>
+                    </div></td>
+                </tr>
+                <tr th:if="${books == null || #lists.isEmpty(books.content)}"><td colspan="4" class="px-6 py-16 text-center text-sm text-slate-400"><div class="flex flex-col items-center gap-2"><span class="text-3xl">🔍</span><span th:text="${keyword != null && keyword != ''} ? 'Không tìm thấy cuốn sách nào khớp với từ khóa trên.' : 'Kho sách hiện tại đang trống.'"></span><a th:if="${keyword != null && keyword != ''}" th:href="@{/books}" class="text-primary hover:underline text-xs font-bold">Xem toàn bộ kho sách</a></div></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <div th:if="${books != null && books.totalPages > 1}" class="flex justify-between items-center mt-5 px-1">
+        <div class="text-xs text-slate-500 font-bold">Trang <span th:text="${books.number + 1}">1</span> / <span th:text="${books.totalPages}">1</span></div>
+        <div class="flex gap-2"><a th:if="${books.hasPrevious()}" th:href="@{/books(page=${books.number - 1}, keyword=${keyword})}" class="px-4 py-2 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50 transition shadow-sm">Trước</a><a th:if="${books.hasNext()}" th:href="@{/books(page=${books.number + 1}, keyword=${keyword})}" class="px-4 py-2 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50 transition shadow-sm">Sau</a></div>
+    </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,184 @@
+<!--<!DOCTYPE html>-->
+<!--<html xmlns:th="http://www.thymeleaf.org"-->
+<!--      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"-->
+<!--      lang="vi">-->
+<!--<head>-->
+<!--  <meta charset="UTF-8" />-->
+<!--  <meta name="viewport" content="width=device-width, initial-scale=1.0" />-->
+<!--  <title>Đăng Ký Phiếu Mượn Sách</title>-->
+<!--  <script src="https://cdn.tailwindcss.com"></script>-->
+<!--</head>-->
+<!--<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">-->
+
+<!--<div class="max-w-lg w-full bg-white rounded-2xl shadow-xl p-8 border border-gray-100 my-10">-->
+<!--  <h2 class="text-2xl font-bold text-gray-900 mb-1 text-center"-->
+<!--      th:text="${#authorization.expression('hasAnyRole(''ADMIN'', ''LIBRARIAN'')')} ? 'Tạo Phiếu Mượn Tại Quầy' : 'Đăng Ký Mượn Sách Online'">-->
+<!--    Tạo Phiếu Mượn-->
+<!--  </h2>-->
+<!--  <p class="text-xs text-gray-400 text-center mb-6">Thời gian mượn và hạn trả được tự động áp dụng theo thời gian thực hệ thống</p>-->
+
+<!--  <div th:if="${errorMessage}" class="mb-5 bg-red-50 border border-red-200 text-red-600 p-3.5 rounded-xl text-sm" th:text="${errorMessage}"></div>-->
+
+<!--  <form th:action="@{/borrow-records/borrow}" method="POST" class="space-y-6">-->
+
+<!--    <div class="space-y-2">-->
+<!--      <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider">-->
+<!--        Thông tin người mượn <span class="text-red-500">*</span>-->
+<!--      </label>-->
+
+<!--      <div sec:authorize="hasRole('USER')" class="relative">-->
+<!--        <div class="w-full bg-blue-50/60 border border-blue-200/80 rounded-xl px-4 py-3 flex justify-between items-center shadow-sm">-->
+<!--          <div class="flex items-center gap-3">-->
+<!--            <div class="p-2 bg-blue-500 text-white rounded-lg">-->
+<!--              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">-->
+<!--                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />-->
+<!--              </svg>-->
+<!--            </div>-->
+<!--            <div>-->
+<!--              <span class="block text-[10px] text-blue-400 font-bold uppercase tracking-wide">Tài khoản đăng ký</span>-->
+<!--              <span class="text-sm font-bold text-blue-900 block" th:text="${currentUsername}">ThanhHuong</span>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--          <span class="bg-blue-500/10 text-blue-600 text-[11px] px-2.5 py-1 rounded-lg font-bold border border-blue-200">Đang kết nối</span>-->
+<!--        </div>-->
+<!--        <input type="hidden" name="userId" th:value="${currentUserId}" />-->
+<!--      </div>-->
+
+<!--      <div sec:authorize="hasAnyRole('ADMIN', 'LIBRARIAN')" class="relative">-->
+<!--        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">-->
+<!--          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">-->
+<!--            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />-->
+<!--          </svg>-->
+<!--        </div>-->
+
+<!--        <select name="userId" required-->
+<!--                class="w-full pl-10 pr-4 py-3 bg-white border border-gray-300 rounded-xl text-sm font-semibold text-gray-700 shadow-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all appearance-none cursor-pointer">-->
+<!--          <option value="">&#45;&#45; Click chọn Độc giả đến mượn sách &#45;&#45;</option>-->
+<!--          <option th:each="u : ${usersList}"-->
+<!--                  th:value="${u.userId}"-->
+<!--                  th:text="'[ID: ' + ${u.userId} + '] ' + ${u.username} + ' - ' + (${u.fullName != null} ? ${u.fullName} : 'Chưa cập nhật tên')"-->
+<!--                  th:selected="${userId == u.userId}"-->
+<!--                  class="text-gray-800 font-medium">-->
+<!--          </option>-->
+<!--        </select>-->
+
+<!--        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">-->
+<!--          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">-->
+<!--            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />-->
+<!--          </svg>-->
+<!--        </div>-->
+<!--        <p class="text-[11px] text-amber-600 font-medium mt-1.5 flex items-center gap-1">-->
+<!--          <span>⚠️</span> Yêu cầu đối chiếu thẻ thư viện vật lý để tránh chọn nhầm tài khoản lịch sử.-->
+<!--        </p>-->
+<!--      </div>-->
+<!--    </div>-->
+
+<!--    <div>-->
+<!--      <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Sách đăng ký mượn <span class="text-red-500">*</span></label>-->
+
+<!--      <div th:if="${selectedBook != null}" class="p-4 bg-gray-50 border border-gray-200 rounded-xl">-->
+<!--        <span class="block text-[10px] text-gray-400 font-bold uppercase mb-0.5">Đầu sách đã chọn</span>-->
+<!--        <span class="text-sm font-bold text-gray-800 block" th:text="${selectedBook.title}">Tên Sách</span>-->
+<!--        <span class="text-xs text-gray-500 mt-1 block" th:text="'Tác giả: ' + ${selectedBook.author} + ' (Kho còn ' + ${selectedBook.quantity} + ' cuốn)'">Tác giả</span>-->
+<!--        <input type="hidden" name="bookId" th:value="${selectedBook.bookId}" />-->
+<!--      </div>-->
+
+<!--      <div th:if="${selectedBook == null}">-->
+<!--        <select name="bookId" required class="w-full px-4 py-3 border border-gray-300 bg-white rounded-xl text-sm font-medium text-gray-700 focus:ring-2 focus:ring-blue-500 shadow-sm outline-none transition">-->
+<!--          <option value="">&#45;&#45; Click chọn đầu sách còn trong kho &#45;&#45;</option>-->
+<!--          <option th:each="book : ${booksList}"-->
+<!--                  th:value="${book.bookId}"-->
+<!--                  th:text="${book.title} + ' (Còn: ' + ${book.quantity} + ' cuốn)'"-->
+<!--                  th:selected="${bookId == book.bookId}"></option>-->
+<!--        </select>-->
+<!--      </div>-->
+<!--    </div>-->
+
+<!--    <div class="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-100">-->
+<!--      <div>-->
+<!--        <span class="block text-[10px] font-bold text-gray-400 uppercase mb-0.5">Ngày mượn</span>-->
+<!--        <span class="text-xs font-bold text-gray-700" th:text="${borrowDateStr}">16/06/2026</span>-->
+<!--      </div>-->
+<!--      <div>-->
+<!--        <span class="block text-[10px] font-bold text-amber-500 uppercase mb-0.5">Hạn hoàn trả dự kiến</span>-->
+<!--        <span class="text-xs font-bold text-amber-600" th:text="${dueDateStr}">30/06/2026</span>-->
+<!--      </div>-->
+<!--    </div>-->
+
+<!--    <div class="flex gap-4 pt-2 border-t border-gray-100">-->
+<!--      <a th:href="@{/books}" class="w-1/2 text-center bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 rounded-xl transition text-sm flex items-center justify-center">Hủy bỏ</a>-->
+<!--      <button type="submit" class="w-1/2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl shadow-md transition text-sm">Xác nhận mượn</button>-->
+<!--    </div>-->
+<!--  </form>-->
+<!--</div>-->
+
+<!--</body>-->
+<!--</html>-->
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Đăng Ký Phiếu Mượn Sách</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: { primary: '#2563eb', ink: '#0f172a' },
+                boxShadow: { soft: '0 18px 45px -28px rgba(15, 23, 42, 0.45)' }
+            }
+        }
+    }
+  </script>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-800 antialiased">
+<nav class="sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-slate-200 shadow-sm">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="h-16 flex items-center justify-between gap-4">
+      <a th:href="@{/home}" class="flex items-center gap-2 text-xl font-extrabold text-primary tracking-tight">
+        <span class="grid place-items-center w-9 h-9 rounded-2xl bg-blue-50 border border-blue-100">📚</span>
+        <span class="hidden sm:inline">Library Management</span>
+      </a>
+
+      <div class="hidden md:flex items-center gap-1 text-sm font-semibold">
+        <a th:href="@{/home}" class="px-3 py-2 rounded-xl text-slate-600 hover:text-primary hover:bg-blue-50 transition">Trang chủ</a>
+        <a th:href="@{/books}" class="px-3 py-2 rounded-xl text-slate-600 hover:text-primary hover:bg-blue-50 transition">Sách</a>
+        <a sec:authorize="hasRole('USER')" th:href="@{/borrow-records}" class="px-3 py-2 rounded-xl text-slate-600 hover:text-primary hover:bg-blue-50 transition">Lịch sử mượn</a>
+        <a sec:authorize="hasAnyRole('ADMIN')" th:href="@{/categories}" class="px-3 py-2 rounded-xl text-slate-600 hover:text-primary hover:bg-blue-50 transition">Thể loại</a>
+        <a sec:authorize="hasAnyRole('ADMIN')" th:href="@{/admin/dashboard}" class="px-3 py-2 rounded-xl text-slate-600 hover:text-primary hover:bg-blue-50 transition">Dashboard</a>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <th:block sec:authorize="isAnonymous()">
+          <a th:href="@{/login}" class="text-sm font-semibold text-slate-600 hover:text-primary transition">Đăng nhập</a>
+          <a th:href="@{/register}" class="hidden sm:inline-flex items-center justify-center px-4 py-2 text-sm font-bold text-white bg-primary hover:bg-blue-700 rounded-xl shadow-sm transition">Đăng ký</a>
+        </th:block>
+        <th:block sec:authorize="isAuthenticated()">
+          <span class="hidden sm:block text-sm text-slate-500">Xin chào, <b class="text-primary" sec:authentication="name">User</b></span>
+          <form th:action="@{/logout}" method="POST" class="inline">
+            <button type="submit" class="px-3 py-2 text-sm font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-xl transition">Đăng xuất</button>
+          </form>
+        </th:block>
+      </div>
+    </div>
+  </div>
+</nav>
+<main class="max-w-2xl mx-auto px-4 py-10">
+  <div class="mb-6 text-center"><p class="text-sm font-bold text-primary mb-2">Phiếu mượn sách</p><h1 class="text-3xl font-black text-ink" th:text="${#authorization.expression('hasAnyRole(''ADMIN'', ''LIBRARIAN'')')} ? 'Tạo phiếu mượn tại quầy' : 'Đăng ký mượn sách online'">Tạo Phiếu Mượn</h1><p class="text-sm text-slate-500 mt-2">Thời gian mượn và hạn trả được tự động áp dụng theo hệ thống.</p></div>
+  <section class="bg-white rounded-[1.75rem] shadow-soft border border-slate-200 p-6 sm:p-8">
+    <div th:if="${errorMessage}" class="mb-5 bg-rose-50 border border-rose-200 text-rose-700 p-4 rounded-2xl text-sm font-semibold" th:text="${errorMessage}"></div>
+    <form th:action="@{/borrow-records/borrow}" method="POST" class="space-y-6">
+      <div><label class="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Thông tin người mượn <span class="text-rose-500">*</span></label>
+        <div sec:authorize="hasRole('USER')" class="bg-blue-50 border border-blue-100 rounded-2xl px-4 py-3 flex justify-between items-center"><div><span class="block text-[10px] text-primary font-black uppercase">Tài khoản đăng ký</span><span class="text-sm font-black text-blue-950" th:text="${currentUsername}">ThanhHuong</span></div><span class="bg-white text-primary text-[11px] px-3 py-1 rounded-full font-black border border-blue-100">Đang kết nối</span><input type="hidden" name="userId" th:value="${currentUserId}" /></div>
+        <div sec:authorize="hasAnyRole('ADMIN', 'LIBRARIAN')"><select name="userId" required class="w-full px-4 py-3 bg-white border border-slate-300 rounded-2xl text-sm font-semibold text-slate-700 shadow-sm outline-none focus:ring-4 focus:ring-blue-100 focus:border-primary transition"><option value="">-- Click chọn Độc giả đến mượn sách --</option><option th:each="u : ${usersList}" th:value="${u.userId}" th:text="'[ID: ' + ${u.userId} + '] ' + ${u.username} + ' - ' + (${u.fullName != null} ? ${u.fullName} : 'Chưa cập nhật tên')" th:selected="${userId == u.userId}"></option></select><p class="text-[11px] text-amber-600 font-semibold mt-2">⚠️ Yêu cầu đối chiếu thẻ thư viện vật lý để tránh chọn nhầm tài khoản.</p></div>
+      </div>
+      <div><label class="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Sách đăng ký mượn <span class="text-rose-500">*</span></label><div th:if="${selectedBook != null}" class="p-4 bg-slate-50 border border-slate-200 rounded-2xl"><span class="block text-[10px] text-slate-400 font-black uppercase mb-1">Đầu sách đã chọn</span><span class="text-sm font-black text-ink block" th:text="${selectedBook.title}">Tên Sách</span><span class="text-xs text-slate-500 mt-1 block" th:text="'Tác giả: ' + ${selectedBook.author} + ' (Kho còn ' + ${selectedBook.quantity} + ' cuốn)'">Tác giả</span><input type="hidden" name="bookId" th:value="${selectedBook.bookId}" /></div><div th:if="${selectedBook == null}"><select name="bookId" required class="w-full px-4 py-3 border border-slate-300 bg-white rounded-2xl text-sm font-semibold text-slate-700 focus:ring-4 focus:ring-blue-100 focus:border-primary shadow-sm outline-none transition"><option value="">-- Click chọn đầu sách còn trong kho --</option><option th:each="book : ${booksList}" th:value="${book.bookId}" th:text="${book.title} + ' (Còn: ' + ${book.quantity} + ' cuốn)'" th:selected="${bookId == book.bookId}"></option></select></div></div>
+      <div class="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100"><div><span class="block text-[10px] font-black text-slate-400 uppercase mb-1">Ngày mượn</span><span class="text-sm font-black text-slate-700" th:text="${borrowDateStr}">16/06/2026</span></div><div><span class="block text-[10px] font-black text-amber-500 uppercase mb-1">Hạn hoàn trả</span><span class="text-sm font-black text-amber-600" th:text="${dueDateStr}">30/06/2026</span></div></div>
+      <div class="flex flex-col sm:flex-row gap-3 pt-5 border-t border-slate-100"><a th:href="@{/books}" class="sm:w-1/2 text-center bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-2xl transition">Hủy bỏ</a><button type="submit" class="sm:w-1/2 bg-primary hover:bg-blue-700 text-white font-bold py-3 rounded-2xl shadow-sm transition">Xác nhận mượn</button></div>
+    </form>
+  </section>
+</main>
+</body>
+</html>
