@@ -1,5 +1,7 @@
 package project.librarymanagement.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import project.librarymanagement.entity.Categories;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -19,5 +21,5 @@ public interface CategoriesRepository
             String categoryName
     );
 
-    List<Categories> findByCategoryNameContainingIgnoreCase(String keyword);
+    Page<Categories> findByCategoryNameContainingIgnoreCase(String keyword, Pageable pageable);
 }

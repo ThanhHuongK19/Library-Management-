@@ -28,16 +28,33 @@ public class BooksWebController {
     /**
      * 1. GET: Hiển thị danh sách sách (Đã đồng bộ map sang BookResponse)
      */
+
 //    @GetMapping
-//    public String listBooks(Model model) {
+//    public String listBooks(
+//            @RequestParam(value = "keyword", required = false) String keyword,
+//            Model model) {
 //        try {
-//            // Lấy dữ liệu Page<Books> từ tầng Service, sau đó map phẳng sang BookResponse giống API
-//            Page<BookResponse> booksPage = bookService.getAllBooks(0, 50, "bookId", "asc")
-//                    .map(this::toBookResponse);
+//            Page<BookResponse> booksPage;
+//
+//            // Kiểm tra xem người dùng có nhập từ khóa tìm kiếm hay không
+//            if (keyword != null && !keyword.trim().isEmpty()) {
+//                System.out.println("==> Đang tìm kiếm sách với từ khóa: " + keyword);
+//
+//                // Gọi hàm searchBooksByKeyword sẵn có trong IBooksService của bạn
+//                booksPage = bookService.searchBooksByKeyword(keyword.trim(), 0, 50)
+//                        .map(this::toBookResponse);
+//
+//                // Giữ lại từ khóa trên ô tìm kiếm sau khi tải lại trang
+//                model.addAttribute("keyword", keyword);
+//            } else {
+//                // Nếu không tìm kiếm, lấy toàn bộ danh sách như cũ
+//                booksPage = bookService.getAllBooks(0, 50, "bookId", "asc")
+//                        .map(this::toBookResponse);
+//            }
 //
 //            model.addAttribute("books", booksPage);
 //        } catch (Exception e) {
-//            System.out.println("==> Lỗi khi tải danh sách sách Web UI: " + e.getMessage());
+//            System.out.println("==> Lỗi khi tải/tìm kiếm danh sách sách Web UI: " + e.getMessage());
 //            model.addAttribute("books", null);
 //        }
 //        return "books/list";
@@ -46,31 +63,36 @@ public class BooksWebController {
     @GetMapping
     public String listBooks(
             @RequestParam(value = "keyword", required = false) String keyword,
+            @RequestParam(defaultValue = "0") int page,      // Thêm tham số page
+            @RequestParam(defaultValue = "10") int size,     // Thêm tham số size
+            @RequestParam(defaultValue = "title") String sortBy, // Thêm tham số sắp xếp
             Model model) {
+
         try {
             Page<BookResponse> booksPage;
 
-            // Kiểm tra xem người dùng có nhập từ khóa tìm kiếm hay không
             if (keyword != null && !keyword.trim().isEmpty()) {
-                System.out.println("==> Đang tìm kiếm sách với từ khóa: " + keyword);
-
-                // Gọi hàm searchBooksByKeyword sẵn có trong IBooksService của bạn
-                booksPage = bookService.searchBooksByKeyword(keyword.trim(), 0, 50)
+                // Tìm kiếm có phân trang
+                booksPage = bookService.searchBooksByKeyword(keyword.trim(), page, size)
                         .map(this::toBookResponse);
-
-                // Giữ lại từ khóa trên ô tìm kiếm sau khi tải lại trang
                 model.addAttribute("keyword", keyword);
             } else {
-                // Nếu không tìm kiếm, lấy toàn bộ danh sách như cũ
-                booksPage = bookService.getAllBooks(0, 50, "bookId", "asc")
+                // Lấy toàn bộ có phân trang
+                booksPage = bookService.getAllBooks(page, size, sortBy, "asc")
                         .map(this::toBookResponse);
             }
 
             model.addAttribute("books", booksPage);
+            model.addAttribute("currentPage", page);
+            model.addAttribute("size", size);
+            model.addAttribute("sortBy", sortBy);
+
         } catch (Exception e) {
-            System.out.println("==> Lỗi khi tải/tìm kiếm danh sách sách Web UI: " + e.getMessage());
-            model.addAttribute("books", null);
+            // Log lỗi và trả về list rỗng thay vì null để tránh lỗi NullPointerException ở view
+            model.addAttribute("books", Page.empty());
+            model.addAttribute("errorMessage", "Không thể tải danh sách sách.");
         }
+
         return "books/list";
     }
 
@@ -80,7 +102,7 @@ public class BooksWebController {
     @GetMapping("/create")
     public String showCreateForm(Model model) {
         model.addAttribute("createBookRequest", new CreateBookRequest());
-        model.addAttribute("categories", categoryService.getAllCategories());
+        model.addAttribute("categories", categoryService.getAllCategories(0, 1000).getContent());
         return "books/create";
     }
 
@@ -92,7 +114,7 @@ public class BooksWebController {
             Model model) {
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("categories", categoryService.getAllCategories());
+            model.addAttribute("categories", categoryService.getAllCategories(0, 1000).getContent());
             return "books/create";
         }
 
@@ -101,7 +123,7 @@ public class BooksWebController {
             return "redirect:/books";
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Thêm sách thất bại: " + e.getMessage());
-            model.addAttribute("categories", categoryService.getAllCategories());
+            model.addAttribute("categories", categoryService.getAllCategories(0, 1000).getContent());
             return "books/create";
         }
     }
@@ -116,7 +138,6 @@ public class BooksWebController {
             updateRequest.setTitle(book.getTitle());
             updateRequest.setAuthor(book.getAuthor());
             updateRequest.setQuantity(book.getQuantity());
-            // 🔥 THÊM DÒNG NÀY: Đổ dữ liệu ISBN cũ lên form chỉnh sửa
             updateRequest.setIsbn(book.getIsbn());
 
             if (book.getCategory() != null) {
@@ -125,7 +146,7 @@ public class BooksWebController {
 
             model.addAttribute("updateBookRequest", updateRequest);
             model.addAttribute("bookId", id);
-            model.addAttribute("categories", categoryService.getAllCategories());
+            model.addAttribute("categories", categoryService.getAllCategories(0, 1000).getContent());
             return "books/edit";
         } catch (Exception e) {
             return "redirect:/books?error=NotFound";
@@ -154,7 +175,7 @@ public class BooksWebController {
 
             // Nạp lại các dữ liệu cần thiết để giao diện không bị sập trắng trang
             model.addAttribute("bookId", id);
-            model.addAttribute("categories", categoryService.getAllCategories());
+            model.addAttribute("categories", categoryService.getAllCategories(0, 1000).getContent());
             return "books/edit";
         }
 
@@ -169,7 +190,7 @@ public class BooksWebController {
 
             model.addAttribute("errorMessage", "Cập nhật thất bại: " + e.getMessage());
             model.addAttribute("bookId", id);
-            model.addAttribute("categories", categoryService.getAllCategories());
+            model.addAttribute("categories", categoryService.getAllCategories(0, 1000).getContent());
             return "books/edit";
         }
     }

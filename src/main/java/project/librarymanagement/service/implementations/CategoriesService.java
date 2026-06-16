@@ -1,5 +1,9 @@
 package project.librarymanagement.service.implementations;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import project.librarymanagement.dto.request.CreateCategoryRequest;
 import project.librarymanagement.dto.request.UpdateCategoryRequest;
@@ -28,8 +32,9 @@ public class CategoriesService implements ICategoriesService {
     }
 
     @Override
-    public List<Categories> getAllCategories() {
-        return categoriesRepository.findAll();
+    public Page<Categories> getAllCategories(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("categoryName").ascending());
+        return categoriesRepository.findAll(pageable);
     }
 
     @Override
@@ -128,7 +133,8 @@ public class CategoriesService implements ICategoriesService {
     }
 
     @Override
-    public List<Categories> searchCategories(String keyword) {
-        return categoriesRepository.findByCategoryNameContainingIgnoreCase(keyword);
+    public Page<Categories> searchCategories(String keyword, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("categoryName").ascending());
+        return categoriesRepository.findByCategoryNameContainingIgnoreCase(keyword, pageable);
     }
 }

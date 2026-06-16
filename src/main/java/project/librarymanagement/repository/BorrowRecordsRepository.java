@@ -1,5 +1,8 @@
 package project.librarymanagement.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import project.librarymanagement.entity.Books;
 import project.librarymanagement.entity.BorrowRecords;
 import project.librarymanagement.entity.Users;
@@ -12,40 +15,20 @@ import java.util.List;
 
 @Repository
 public interface BorrowRecordsRepository
-        extends JpaRepository<BorrowRecords, Long> {
+        extends JpaRepository<BorrowRecords, Long>,
+        JpaSpecificationExecutor<BorrowRecords> {
 
-    // Get all borrow records of a user
-    List<BorrowRecords> findBorrowRecordsByUser(
-            Users user
-    );
+    Page<BorrowRecords> findBorrowRecordsByUser(Users user, Pageable pageable);
 
-    // Get all borrow records of a book
-    List<BorrowRecords> findBorrowRecordsByBook(
-            Books book
-    );
+    Page<BorrowRecords> findBorrowRecordsByBook(Books book, Pageable pageable);
 
-    // Get records by status
-    List<BorrowRecords> findBorrowRecordsByStatus(
-            BorrowStatus status
-    );
+    Page<BorrowRecords> findBorrowRecordsByStatus(BorrowStatus status, Pageable pageable);
 
-    // Get records of a user by status
-    List<BorrowRecords> findBorrowRecordsByUserAndStatus(
-            Users user,
-            BorrowStatus status
-    );
+    Page<BorrowRecords> findBorrowRecordsByUserAndStatus(Users user, BorrowStatus status, Pageable pageable);
 
-    // Find overdue(qua han) records
-    List<BorrowRecords> findBorrowRecordsByDueDateBeforeAndStatus(
-            Timestamp dueDate,
-            BorrowStatus status
-    );
+    Page<BorrowRecords> findBorrowRecordsByDueDateBeforeAndStatus(Timestamp dueDate, BorrowStatus status, Pageable pageable);
 
-    // Get records between dates
-    List<BorrowRecords> findBorrowRecordsByBorrowDateBetween(
-            Timestamp startDate,
-            Timestamp endDate
-    );
+    Page<BorrowRecords> findByBorrowDateBetween(Timestamp start, Timestamp end, Pageable pageable);
 
     // su dung cho admin
     long countByStatus(

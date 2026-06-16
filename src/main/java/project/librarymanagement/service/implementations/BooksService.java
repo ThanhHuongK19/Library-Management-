@@ -146,7 +146,11 @@ public class BooksService implements IBooksService {
             int page,
             int size
     ) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("title").ascending());
+
+        if (keyword == null || keyword.isEmpty()) {
+            return booksRepository.findAll(pageable);
+        }
 
         return booksRepository
                 .findBooksByTitleContainingIgnoreCaseOrAuthorContainingIgnoreCase(

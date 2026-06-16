@@ -1,5 +1,6 @@
 package project.librarymanagement.service.interfaces;
 
+import org.springframework.data.domain.Page;
 import project.librarymanagement.dto.request.CreateCategoryRequest;
 import project.librarymanagement.dto.request.UpdateCategoryRequest;
 import project.librarymanagement.entity.Categories;
@@ -8,7 +9,7 @@ import java.util.List;
 
 public interface ICategoriesService {
 
-    List<Categories> getAllCategories();
+    Page<Categories> getAllCategories(int page, int size);
 
     Categories getCategoryById(Long categoryId);
 
@@ -23,5 +24,5 @@ public interface ICategoriesService {
 
     void deleteCategory(Long categoryId);
 
-    List<Categories> searchCategories(String keyword);
+    Page<Categories> searchCategories(String keyword, int page, int size);
 }

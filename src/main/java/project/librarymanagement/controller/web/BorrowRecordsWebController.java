@@ -1,5 +1,8 @@
 package project.librarymanagement.controller.web;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,6 +19,7 @@ import project.librarymanagement.service.interfaces.IBooksService;
 import project.librarymanagement.service.interfaces.IBorrowRecordsService;
 
 import java.lang.reflect.Method;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
@@ -69,49 +73,44 @@ public class BorrowRecordsWebController {
      * - ADMIN/LIBRARIAN: Thấy toàn bộ hệ thống
      */
     @GetMapping
-    public String listBorrowRecords(@RequestParam(value = "status", required = false) BorrowStatus status, Model model) {
-        try {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            boolean isAdminOrLibrarian = auth != null && auth.getAuthorities().stream()
-                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_LIBRARIAN"));
+    public String listBorrowRecords(
+            @RequestParam(value = "status", required = false) BorrowStatus status,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Model model) {
 
-            List<BorrowRecords> records;
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean isStaff = auth != null && auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_LIBRARIAN"));
 
-            if (isAdminOrLibrarian) {
-                // Quản trị viên & Thủ thư: Xem tất cả
-                if (status != null) {
-                    records = borrowRecordsService.getBorrowRecordsByStatus(status);
-                } else {
-                    records = borrowRecordsService.getAllBorrowRecords();
-                }
-                model.addAttribute("isUserView", false);
-            } else {
-                // Độc giả thông thường: Chỉ lấy dữ liệu của chính mình
-                Long currentUserId = getCurrentUserId(auth);
-                if (currentUserId != null) {
-                    if (status != null) {
-                        records = borrowRecordsService.getBorrowRecordsByUserAndStatus(currentUserId, status);
-                    } else {
-                        records = borrowRecordsService.getBorrowRecordsByUser(currentUserId);
-                    }
-                } else {
-                    records = Collections.emptyList();
-                }
-                model.addAttribute("isUserView", true);
-            }
+        Specification<BorrowRecords> spec = Specification.allOf();
 
-            List<BorrowRecordResponse> responseList = records.stream()
-                    .map(this::toBorrowRecordResponse)
-                    .collect(Collectors.toList());
-
-            model.addAttribute("records", responseList);
-            model.addAttribute("statuses", BorrowStatus.values());
-            model.addAttribute("selectedStatus", status);
-
-        } catch (Exception e) {
-            model.addAttribute("records", Collections.emptyList());
-            model.addAttribute("statuses", BorrowStatus.values());
+        if (startDate != null && endDate != null) {
+            spec = spec.and((root, query, cb) -> cb.between(root.get("borrowDate"),
+                    Timestamp.valueOf(startDate.atStartOfDay()), Timestamp.valueOf(endDate.plusDays(1).atStartOfDay())));
         }
+
+        if (status != null) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("status"), status));
+        }
+
+        if (!isStaff) {
+            Long userId = getCurrentUserId(auth);
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("user").get("userId"), userId));
+        }
+
+        Page<BorrowRecordResponse> responsePage = borrowRecordsService.getRecords(spec, page, size).map(this::toBorrowRecordResponse);
+
+        model.addAttribute("records", responsePage.getContent());
+        model.addAttribute("recordPage", responsePage);
+        model.addAttribute("statuses", BorrowStatus.values());
+        model.addAttribute("selectedStatus", status);
+        model.addAttribute("startDate", startDate);
+        model.addAttribute("endDate", endDate);
+        model.addAttribute("isUserView", !isStaff);
+
         return "borrows/list";
     }
 

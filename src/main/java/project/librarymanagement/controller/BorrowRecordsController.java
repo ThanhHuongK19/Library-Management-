@@ -1,5 +1,6 @@
 package project.librarymanagement.controller;
 
+import org.springframework.data.domain.Page;
 import project.librarymanagement.dto.response.BorrowRecordResponse;
 import project.librarymanagement.entity.BorrowRecords;
 import project.librarymanagement.entity.BorrowRecords.BorrowStatus;
@@ -22,13 +23,28 @@ public class BorrowRecordsController {
     }
 
     @GetMapping
-    public ResponseEntity<List<BorrowRecordResponse>> getAllBorrowRecords() {
-        return ResponseEntity.ok(
-                borrowRecordsService.getAllBorrowRecords()
-                        .stream()
-                        .map(this::toBorrowRecordResponse)
-                        .collect(Collectors.toList())
-        );
+    public ResponseEntity<Page<BorrowRecordResponse>> getAllBorrowRecords(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        // Gọi service đã phân trang
+        Page<BorrowRecordResponse> responsePage = borrowRecordsService.getAllBorrowRecords(page, size)
+                .map(this::toBorrowRecordResponse);
+
+        return ResponseEntity.ok(responsePage);
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<Page<BorrowRecordResponse>> getBorrowRecordsByUser(
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        // Gọi service tìm theo user với phân trang
+        Page<BorrowRecordResponse> responsePage = borrowRecordsService.getBorrowRecordsByUser(userId, page, size)
+                .map(this::toBorrowRecordResponse);
+
+        return ResponseEntity.ok(responsePage);
     }
 
     @GetMapping("/{id}")
@@ -46,26 +62,6 @@ public class BorrowRecordsController {
     public ResponseEntity<Void> returnBook(@PathVariable Long id) {
         borrowRecordsService.returnBook(id);
         return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<BorrowRecordResponse>> getBorrowRecordsByUser(@PathVariable Long userId) {
-        return ResponseEntity.ok(
-                borrowRecordsService.getBorrowRecordsByUser(userId)
-                        .stream()
-                        .map(this::toBorrowRecordResponse)
-                        .collect(Collectors.toList())
-        );
-    }
-
-    @GetMapping("/status/{status}")
-    public ResponseEntity<List<BorrowRecordResponse>> getBorrowRecordsByStatus(@PathVariable BorrowStatus status) {
-        return ResponseEntity.ok(
-                borrowRecordsService.getBorrowRecordsByStatus(status)
-                        .stream()
-                        .map(this::toBorrowRecordResponse)
-                        .collect(Collectors.toList())
-        );
     }
 
     private BorrowRecordResponse toBorrowRecordResponse(BorrowRecords record) {

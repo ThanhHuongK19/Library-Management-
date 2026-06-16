@@ -1,5 +1,6 @@
 package project.librarymanagement.controller;
 
+import org.springframework.data.domain.Page;
 import project.librarymanagement.dto.request.CreateCategoryRequest;
 import project.librarymanagement.dto.request.UpdateCategoryRequest;
 import project.librarymanagement.dto.response.CategoryResponse;
@@ -26,15 +27,14 @@ public class CategoriesController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CategoryResponse>> getAllCategories() {
+    public ResponseEntity<Page<CategoryResponse>> getAllCategories(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
-        List<CategoryResponse> categories =
-                categoriesService.getAllCategories()
-                        .stream()
-                        .map(this::toCategoryResponse)
-                        .collect(Collectors.toList());
+        Page<Categories> categoriesPage = categoriesService.getAllCategories(page, size);
+        Page<CategoryResponse> responsePage = categoriesPage.map(this::toCategoryResponse);
 
-        return ResponseEntity.ok(categories);
+        return ResponseEntity.ok(responsePage);
     }
 
     @GetMapping("/{id}")

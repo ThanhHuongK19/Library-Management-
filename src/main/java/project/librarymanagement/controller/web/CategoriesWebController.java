@@ -1,5 +1,6 @@
 package project.librarymanagement.controller.web;
 
+import org.springframework.data.domain.Page;
 import org.springframework.validation.BindingResult;
 import project.librarymanagement.dto.request.CreateCategoryRequest;
 import project.librarymanagement.dto.request.UpdateCategoryRequest;
@@ -25,16 +26,28 @@ public class CategoriesWebController {
 
     // Danh sách và Tìm kiếm
     @GetMapping
-    public String listCategories(@RequestParam(value = "keyword", required = false) String keyword, Model model) {
-        List<Categories> categories;
-        if (keyword != null && !keyword.isEmpty()) {
-            categories = categoriesService.searchCategories(keyword); // Đảm bảo Service của bạn có hàm này
+    public String listCategories(
+            @RequestParam(value = "keyword", required = false) String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Model model) {
+
+        Page<Categories> categoriesPage;
+
+        // Gọi Service với tham số phân trang
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            categoriesPage = categoriesService.searchCategories(keyword.trim(), page, size);
+            model.addAttribute("keyword", keyword);
         } else {
-            categories = categoriesService.getAllCategories();
+            categoriesPage = categoriesService.getAllCategories(page, size);
         }
-        model.addAttribute("categories", categories);
+
+        // Đưa kết quả Page vào model
+        model.addAttribute("categoriesPage", categoriesPage);
         model.addAttribute("newCategory", new CreateCategoryRequest());
-        model.addAttribute("keyword", keyword);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("size", size);
+
         return "categories/list";
     }
 
@@ -42,19 +55,18 @@ public class CategoriesWebController {
     @PostMapping("/add")
     public String createCategory(@Valid @ModelAttribute("newCategory") CreateCategoryRequest request,
                                  BindingResult result, Model model) {
-        // 1. Kiểm tra lỗi validate cơ bản (VD: @NotBlank)
+
         if (result.hasErrors()) {
-            model.addAttribute("categories", categoriesService.getAllCategories());
+            model.addAttribute("categoriesPage", categoriesService.getAllCategories(0, 10));
             return "categories/list";
         }
 
-        // 2. Kiểm tra nghiệp vụ (trùng tên)
         try {
             categoriesService.createCategory(request);
             return "redirect:/categories?success";
-        } catch (BadRequestException e) {
+        } catch (Exception e) {
             model.addAttribute("errorMessage", e.getMessage());
-            model.addAttribute("categories", categoriesService.getAllCategories());
+            model.addAttribute("categoriesPage", categoriesService.getAllCategories(0, 10));
             return "categories/list";
         }
     }

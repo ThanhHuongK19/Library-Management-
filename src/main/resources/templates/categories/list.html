@@ -1,97 +1,3 @@
-<!--<!DOCTYPE html>-->
-<!--<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml" lang="vi">-->
-<!--<head>-->
-<!--  <title>Quản Lý Thể Loại</title>-->
-<!--  <script src="https://cdn.tailwindcss.com"></script>-->
-<!--</head>-->
-<!--<body class="bg-gray-50 p-8">-->
-<!--<nav class="sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-slate-200 shadow-sm">-->
-<!--  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">-->
-<!--    <div class="h-16 flex items-center justify-between gap-4">-->
-<!--      <a th:href="@{/home}" class="flex items-center gap-2 text-xl font-extrabold text-primary tracking-tight">-->
-<!--        <span class="grid place-items-center w-9 h-9 rounded-2xl bg-blue-50 border border-blue-100">📚</span>-->
-<!--        <span class="hidden sm:inline">Library Management</span>-->
-<!--      </a>-->
-
-<!--      <div class="hidden md:flex items-center gap-1 text-sm font-semibold">-->
-<!--        <a th:href="@{/home}" class="px-3 py-2 rounded-xl text-slate-600 hover:text-primary hover:bg-blue-50 transition">Trang chủ</a>-->
-<!--        <a th:href="@{/books}" class="px-3 py-2 rounded-xl text-slate-600 hover:text-primary hover:bg-blue-50 transition">Sách</a>-->
-<!--        <a sec:authorize="hasRole('USER')" th:href="@{/borrow-records}" class="px-3 py-2 rounded-xl text-slate-600 hover:text-primary hover:bg-blue-50 transition">Lịch sử mượn</a>-->
-<!--        <a sec:authorize="hasAnyRole('ADMIN')" th:href="@{/categories}" class="px-3 py-2 rounded-xl text-slate-600 hover:text-primary hover:bg-blue-50 transition">Thể loại</a>-->
-<!--        <a sec:authorize="hasAnyRole('ADMIN')" th:href="@{/admin/dashboard}" class="px-3 py-2 rounded-xl text-slate-600 hover:text-primary hover:bg-blue-50 transition">Dashboard</a>-->
-<!--      </div>-->
-
-<!--      <div class="flex items-center gap-3">-->
-<!--        <th:block sec:authorize="isAnonymous()">-->
-<!--          <a th:href="@{/login}" class="text-sm font-semibold text-slate-600 hover:text-primary transition">Đăng nhập</a>-->
-<!--          <a th:href="@{/register}" class="hidden sm:inline-flex items-center justify-center px-4 py-2 text-sm font-bold text-white bg-primary hover:bg-blue-700 rounded-xl shadow-sm transition">Đăng ký</a>-->
-<!--        </th:block>-->
-<!--        <th:block sec:authorize="isAuthenticated()">-->
-<!--          <span class="hidden sm:block text-sm text-slate-500">Xin chào, <b class="text-primary" sec:authentication="name">User</b></span>-->
-<!--          <form th:action="@{/logout}" method="POST" class="inline">-->
-<!--            <button type="submit" class="px-3 py-2 text-sm font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-xl transition">Đăng xuất</button>-->
-<!--          </form>-->
-<!--        </th:block>-->
-<!--      </div>-->
-<!--    </div>-->
-<!--  </div>-->
-<!--</nav>-->
-<!--<div class="max-w-4xl mx-auto">-->
-<!--  <h1 class="text-2xl font-bold mb-6">Quản Lý Danh Mục</h1>-->
-
-<!--  <div class="mb-6 bg-white p-4 rounded-xl border flex gap-3">-->
-<!--    <form th:action="@{/categories}" method="GET" class="flex w-full gap-3">-->
-<!--      <input type="text" name="keyword" th:value="${keyword}"-->
-<!--             placeholder="Tìm theo tên thể loại..."-->
-<!--             class="flex-1 border rounded-lg px-4 py-2 outline-none focus:ring-2 ring-blue-500">-->
-<!--      <button type="submit" class="bg-gray-800 text-white px-6 py-2 rounded-lg">Tìm kiếm</button>-->
-<!--      <a th:if="${keyword}" th:href="@{/categories}" class="text-red-500 py-2">Xóa lọc</a>-->
-<!--    </form>-->
-<!--  </div>-->
-<!--  <div th:if="${errorMessage}" class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl mb-6 text-sm flex items-center">-->
-<!--    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>-->
-<!--    <span th:text="${errorMessage}"></span>-->
-<!--  </div>-->
-
-<!--  <div th:if="${param.success}" class="bg-green-50 border border-green-200 text-green-600 px-4 py-3 rounded-xl mb-6 text-sm">-->
-<!--    Đã thêm thể loại mới thành công!-->
-<!--  </div>-->
-<!--  <div class="bg-white p-6 rounded-xl shadow-sm border mb-6">-->
-<!--    <form th:action="@{/categories/add}" th:object="${newCategory}" method="POST" class="flex gap-4">-->
-<!--      <input type="text" th:field="*{categoryName}" placeholder="Tên thể loại..." class="flex-1 border rounded-lg px-4 py-2">-->
-<!--      <input type="text" th:field="*{description}" placeholder="Mô tả..." class="flex-1 border rounded-lg px-4 py-2">-->
-<!--      <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold">Thêm</button>-->
-<!--      <p th:if="${#fields.hasErrors('categoryName')}"-->
-<!--         th:errors="*{categoryName}" class="text-red-500 text-sm">Lỗi</p>-->
-<!--    </form>-->
-<!--  </div>-->
-
-<!--  <div class="bg-white rounded-xl shadow-sm overflow-hidden border">-->
-<!--    <table class="w-full text-left">-->
-<!--      <thead class="bg-gray-50">-->
-<!--      <tr>-->
-<!--        <th class="px-6 py-3 text-xs uppercase">Tên</th>-->
-<!--        <th class="px-6 py-3 text-xs uppercase">Mô tả</th>-->
-<!--        <th class="px-6 py-3 text-right">Hành động</th>-->
-<!--      </tr>-->
-<!--      </thead>-->
-<!--      <tbody>-->
-<!--      <tr th:each="cat : ${categories}" class="border-t">-->
-<!--        <td class="px-6 py-4 font-bold" th:text="${cat.categoryName}"></td>-->
-<!--        <td class="px-6 py-4 text-gray-600" th:text="${cat.description}"></td>-->
-<!--        <td class="px-6 py-4 text-right space-x-3">-->
-<!--          <a th:href="@{/categories/edit/{id}(id=${cat.categoryId})}" class="text-blue-600">Sửa</a>-->
-<!--          <a th:href="@{/categories/delete/{id}(id=${cat.categoryId})}"-->
-<!--             onclick="return confirm('Chắc chắn xóa?')" class="text-red-600">Xóa</a>-->
-<!--        </td>-->
-<!--      </tr>-->
-<!--      </tbody>-->
-<!--    </table>-->
-<!--  </div>-->
-<!--</div>-->
-<!--</body>-->
-<!--</html>-->
-
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
@@ -230,7 +136,8 @@
         </tr>
         </thead>
         <tbody class="divide-y divide-slate-200 text-sm">
-        <tr th:each="cat : ${categories}" class="hover:bg-slate-50/80 transition">
+<!--        <tr th:each="cat : ${categories}" class="hover:bg-slate-50/80 transition">-->
+        <tr th:each="cat : ${categoriesPage.content}" class="hover:bg-slate-50/80 transition">
           <td class="px-6 py-4">
             <div class="font-bold text-slate-900" th:text="${cat.categoryName}">Tên thể loại</div>
           </td>
@@ -248,7 +155,8 @@
           </td>
         </tr>
 
-        <tr th:if="${#lists.isEmpty(categories)}">
+<!--        <tr th:if="${#lists.isEmpty(categories)}">-->
+        <tr th:if="${categoriesPage.empty}">
           <td colspan="3" class="px-6 py-12 text-center text-sm text-slate-400">
             <div class="flex flex-col items-center gap-2">
               <span class="text-2xl">🔍</span>
@@ -258,6 +166,19 @@
         </tr>
         </tbody>
       </table>
+    </div>
+    <div class="px-6 py-4 border-t border-slate-200 flex items-center justify-between bg-slate-50">
+      <p class="text-xs text-slate-500 font-bold uppercase">
+        Trang <span th:text="${categoriesPage.number + 1}">1</span> / <span th:text="${categoriesPage.totalPages}">1</span>
+      </p>
+      <div class="flex gap-2">
+        <a th:if="${categoriesPage.hasPrevious()}"
+           th:href="@{/categories(page=${categoriesPage.number - 1}, keyword=${keyword})}"
+           class="px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-bold hover:bg-slate-50">Trước</a>
+        <a th:if="${categoriesPage.hasNext()}"
+           th:href="@{/categories(page=${categoriesPage.number + 1}, keyword=${keyword})}"
+           class="px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-bold hover:bg-slate-50">Sau</a>
+      </div>
     </div>
   </section>
 </main>
