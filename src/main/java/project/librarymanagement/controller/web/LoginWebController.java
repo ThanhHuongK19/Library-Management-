@@ -15,14 +15,14 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import project.librarymanagement.dto.request.LoginRequest;
 import project.librarymanagement.dto.response.AuthResponse;
-import project.librarymanagement.service.CustomUserDetailsService; // Thêm import này
+import project.librarymanagement.service.CustomUserDetailsService;
 import project.librarymanagement.service.interfaces.IAuthService;
 
 @Controller
 public class LoginWebController {
 
     private final IAuthService authService;
-    private final CustomUserDetailsService userDetailsService; // 🔥 Thêm Service này để lấy thông tin User quyền hạn
+    private final CustomUserDetailsService userDetailsService; //Service này để lấy thông tin User quyền hạn
 
     public LoginWebController(IAuthService authService, CustomUserDetailsService userDetailsService) {
         this.authService = authService;
@@ -36,7 +36,7 @@ public class LoginWebController {
     }
 
     /**
-     * 🔥 ĐÃ ĐỒNG BỘ: Cập nhật cơ chế nạp phiên đăng nhập cho Spring Security
+     * Cập nhật cơ chế nạp phiên đăng nhập cho Spring Security
      */
     @PostMapping("/login")
     public String handleLogin(
@@ -63,7 +63,7 @@ public class LoginWebController {
 
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
 
-            // 4. 🔥 QUAN TRỌNG NHẤT: Lưu đối tượng chứng thực vào Context của hệ thống bảo mật
+            // 4. Lưu đối tượng chứng thực vào Context của hệ thống bảo mật
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             // 5. Lưu thêm dữ liệu cần thiết riêng vào Session (để lấy Token hiển thị hoặc dùng cho việc khác nếu cần)

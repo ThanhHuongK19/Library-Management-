@@ -22,9 +22,7 @@ import java.lang.reflect.Method;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/borrow-records")
@@ -164,19 +162,19 @@ public class BorrowRecordsWebController {
                     .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_LIBRARIAN"));
 
             if (!isAdminOrLibrarian) {
-                // 1. Nếu là USER: Bắt buộc lấy ID từ Session đăng nhập của chính họ để lưu
+                // Nếu là USER: Bắt buộc lấy ID từ Session đăng nhập của chính họ để lưu
                 userId = getCurrentUserId(auth);
                 if (userId == null) {
                     throw new IllegalStateException("Không tìm thấy thông tin phiên đăng nhập độc giả!");
                 }
             } else {
-                // 2. Nếu là ADMIN/LIBRARIAN: GIỮ NGUYÊN userId từ form gửi lên (ID của người được mượn hộ)
+                // Nếu là ADMIN/LIBRARIAN: GIỮ NGUYÊN userId từ form gửi lên (ID của người được mượn hộ)
                 if (userId == null || userId == 0) {
                     throw new IllegalArgumentException("Vui lòng nhập hoặc chọn một Độc giả hợp lệ!");
                 }
             }
 
-            // Gọi dịch vụ thực hiện lưu trữ xuống DB
+            // Gọi service thực hiện lưu trữ xuống DB
             borrowRecordsService.borrowBook(userId, bookId);
             return "redirect:/borrow-records?success=Borrowed";
 

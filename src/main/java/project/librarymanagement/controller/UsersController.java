@@ -2,7 +2,6 @@ package project.librarymanagement.controller;
 
 import project.librarymanagement.dto.request.UpdateUserRequest;
 import project.librarymanagement.dto.response.UserResponse;
-import project.librarymanagement.entity.Roles;
 import project.librarymanagement.entity.Users;
 import project.librarymanagement.service.interfaces.IUsersService;
 import jakarta.validation.Valid;

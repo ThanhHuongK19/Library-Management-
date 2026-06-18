@@ -9,8 +9,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import project.librarymanagement.dto.request.CreateBookRequest;
 import project.librarymanagement.dto.request.UpdateBookRequest;
-import project.librarymanagement.dto.response.BookResponse; // Thêm import này
-import project.librarymanagement.entity.Books; // Thêm import này
+import project.librarymanagement.dto.response.BookResponse;
+import project.librarymanagement.entity.Books;
 import project.librarymanagement.service.interfaces.IBooksService;
 import project.librarymanagement.service.interfaces.ICategoriesService;
 
@@ -28,56 +28,22 @@ public class BooksWebController {
     /**
      * 1. GET: Hiển thị danh sách sách (Đã đồng bộ map sang BookResponse)
      */
-
-//    @GetMapping
-//    public String listBooks(
-//            @RequestParam(value = "keyword", required = false) String keyword,
-//            Model model) {
-//        try {
-//            Page<BookResponse> booksPage;
-//
-//            // Kiểm tra xem người dùng có nhập từ khóa tìm kiếm hay không
-//            if (keyword != null && !keyword.trim().isEmpty()) {
-//                System.out.println("==> Đang tìm kiếm sách với từ khóa: " + keyword);
-//
-//                // Gọi hàm searchBooksByKeyword sẵn có trong IBooksService của bạn
-//                booksPage = bookService.searchBooksByKeyword(keyword.trim(), 0, 50)
-//                        .map(this::toBookResponse);
-//
-//                // Giữ lại từ khóa trên ô tìm kiếm sau khi tải lại trang
-//                model.addAttribute("keyword", keyword);
-//            } else {
-//                // Nếu không tìm kiếm, lấy toàn bộ danh sách như cũ
-//                booksPage = bookService.getAllBooks(0, 50, "bookId", "asc")
-//                        .map(this::toBookResponse);
-//            }
-//
-//            model.addAttribute("books", booksPage);
-//        } catch (Exception e) {
-//            System.out.println("==> Lỗi khi tải/tìm kiếm danh sách sách Web UI: " + e.getMessage());
-//            model.addAttribute("books", null);
-//        }
-//        return "books/list";
-//    }
-
     @GetMapping
     public String listBooks(
             @RequestParam(value = "keyword", required = false) String keyword,
-            @RequestParam(defaultValue = "0") int page,      // Thêm tham số page
-            @RequestParam(defaultValue = "10") int size,     // Thêm tham số size
-            @RequestParam(defaultValue = "title") String sortBy, // Thêm tham số sắp xếp
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "title") String sortBy,
             Model model) {
 
         try {
             Page<BookResponse> booksPage;
 
             if (keyword != null && !keyword.trim().isEmpty()) {
-                // Tìm kiếm có phân trang
                 booksPage = bookService.searchBooksByKeyword(keyword.trim(), page, size)
                         .map(this::toBookResponse);
                 model.addAttribute("keyword", keyword);
             } else {
-                // Lấy toàn bộ có phân trang
                 booksPage = bookService.getAllBooks(page, size, sortBy, "asc")
                         .map(this::toBookResponse);
             }
@@ -180,10 +146,9 @@ public class BooksWebController {
         }
 
         try {
-            // Thực hiện gọi hàm cập nhật chính thức xuống Database
             bookService.updateBook(id, request);
 
-            // Cập nhật thành công, chuyển hướng về trang danh sách
+            // Update thành công, chuyển hướng về trang danh sách
             return "redirect:/books";
         } catch (Exception e) {
             System.out.println("==> Lỗi từ tầng Service khi thực hiện cập nhật: " + e.getMessage());
@@ -199,13 +164,11 @@ public class BooksWebController {
     @GetMapping("/delete/{id}")
     public String deleteBook(@PathVariable("id") Long id, Model model) {
         try {
-            // Gọi hàm deleteBook từ tầng Service tương tự như BooksController (API)
             bookService.deleteBook(id);
 
             // Log kiểm tra tiến trình xóa thành công
             System.out.println("==> Xóa thành công sách có ID: " + id);
 
-            // Quay về danh sách sách với trạng thái thành công
             return "redirect:/books?success=Deleted";
         } catch (Exception e) {
             System.out.println("==> Lỗi khi xóa sách ID " + id + ": " + e.getMessage());

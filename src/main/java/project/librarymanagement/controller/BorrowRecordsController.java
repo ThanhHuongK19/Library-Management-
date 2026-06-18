@@ -3,14 +3,11 @@ package project.librarymanagement.controller;
 import org.springframework.data.domain.Page;
 import project.librarymanagement.dto.response.BorrowRecordResponse;
 import project.librarymanagement.entity.BorrowRecords;
-import project.librarymanagement.entity.BorrowRecords.BorrowStatus;
 import project.librarymanagement.service.interfaces.IBorrowRecordsService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/borrow-records")

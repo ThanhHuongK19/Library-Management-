@@ -5,14 +5,12 @@ import org.springframework.validation.BindingResult;
 import project.librarymanagement.dto.request.CreateCategoryRequest;
 import project.librarymanagement.dto.request.UpdateCategoryRequest;
 import project.librarymanagement.entity.Categories;
-import project.librarymanagement.exception.BadRequestException;
 import project.librarymanagement.service.interfaces.ICategoriesService;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @Controller
 @RequestMapping("/categories")
@@ -34,7 +32,6 @@ public class CategoriesWebController {
 
         Page<Categories> categoriesPage;
 
-        // Gọi Service với tham số phân trang
         if (keyword != null && !keyword.trim().isEmpty()) {
             categoriesPage = categoriesService.searchCategories(keyword.trim(), page, size);
             model.addAttribute("keyword", keyword);
@@ -42,7 +39,6 @@ public class CategoriesWebController {
             categoriesPage = categoriesService.getAllCategories(page, size);
         }
 
-        // Đưa kết quả Page vào model
         model.addAttribute("categoriesPage", categoriesPage);
         model.addAttribute("newCategory", new CreateCategoryRequest());
         model.addAttribute("currentPage", page);
