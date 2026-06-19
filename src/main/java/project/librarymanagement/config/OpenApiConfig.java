@@ -10,11 +10,15 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+// Auto create Swagger UI
+
 @Configuration
 public class OpenApiConfig {
 
     private static final String SECURITY_SCHEME_NAME = "bearerAuth";
 
+    // @Bean thông báo vs Spring: Run hàm này lấy obj thu đc (OpenAPI)
+    // ném vào Spring Container để quản lý
     @Bean
     public OpenAPI libraryManagementOpenAPI() {
 

@@ -4,6 +4,7 @@ import project.librarymanagement.dto.request.CreateBookRequest;
 import project.librarymanagement.dto.request.UpdateBookRequest;
 import project.librarymanagement.dto.response.BookResponse;
 import project.librarymanagement.entity.Books;
+import project.librarymanagement.mapper.BookMapper;
 import project.librarymanagement.service.interfaces.IBooksService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -16,9 +17,11 @@ import org.springframework.web.bind.annotation.*;
 public class BooksController {
 
     private final IBooksService booksService;
+    private final BookMapper bookMapper;
 
-    public BooksController(IBooksService booksService) {
+    public BooksController(IBooksService booksService, BookMapper bookMapper) {
         this.booksService = booksService;
+        this.bookMapper = bookMapper;
     }
 
     @GetMapping
@@ -30,7 +33,7 @@ public class BooksController {
     ) {
         return ResponseEntity.ok(
                 booksService.getAllBooks(page, size, sortBy, sortDir)
-                        .map(this::toBookResponse)
+                        .map(bookMapper::toBookResponse)
         );
     }
 
@@ -39,7 +42,7 @@ public class BooksController {
             @PathVariable Long id
     ) {
         return ResponseEntity.ok(
-                toBookResponse(booksService.getBookById(id))
+                bookMapper.toBookResponse(booksService.getBookById(id))
         );
     }
 
@@ -48,7 +51,7 @@ public class BooksController {
             @PathVariable String isbn
     ) {
         return ResponseEntity.ok(
-                toBookResponse(booksService.getBookByIsbn(isbn))
+                bookMapper.toBookResponse(booksService.getBookByIsbn(isbn))
         );
     }
 
@@ -59,7 +62,7 @@ public class BooksController {
         Books createdBook = booksService.createBook(request);
 
         return new ResponseEntity<>(
-                toBookResponse(createdBook),
+                bookMapper.toBookResponse(createdBook),
                 HttpStatus.CREATED
         );
     }
@@ -70,7 +73,7 @@ public class BooksController {
             @Valid @RequestBody UpdateBookRequest request
     ) {
         return ResponseEntity.ok(
-                toBookResponse(
+                bookMapper.toBookResponse(
                         booksService.updateBook(id, request)
                 )
         );
@@ -92,7 +95,7 @@ public class BooksController {
     ) {
         return ResponseEntity.ok(
                 booksService.searchBooksByKeyword(keyword, page, size)
-                        .map(this::toBookResponse)
+                        .map(bookMapper::toBookResponse)
         );
     }
 
@@ -103,29 +106,7 @@ public class BooksController {
     ) {
         return ResponseEntity.ok(
                 booksService.findAvailableBooks(page, size)
-                        .map(this::toBookResponse)
-        );
-    }
-
-    private BookResponse toBookResponse(Books book) {
-        Long categoryId = null;
-        String categoryName = null;
-
-        if (book.getCategory() != null) {
-            categoryId = book.getCategory().getCategoryId();
-            categoryName = book.getCategory().getCategoryName();
-        }
-
-        return new BookResponse(
-                book.getBookId(),
-                book.getTitle(),
-                book.getAuthor(),
-                book.getIsbn(),
-                book.getQuantity(),
-                book.getPublisher(),
-                book.getPublishYear(),
-                categoryId,
-                categoryName
+                        .map(bookMapper::toBookResponse)
         );
     }
 }

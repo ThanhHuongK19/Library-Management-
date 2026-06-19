@@ -3,6 +3,7 @@ package project.librarymanagement.controller;
 import org.springframework.data.domain.Page;
 import project.librarymanagement.dto.response.BorrowRecordResponse;
 import project.librarymanagement.entity.BorrowRecords;
+import project.librarymanagement.mapper.BorrowRecordMapper;
 import project.librarymanagement.service.interfaces.IBorrowRecordsService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,9 +15,11 @@ import org.springframework.web.bind.annotation.*;
 public class BorrowRecordsController {
 
     private final IBorrowRecordsService borrowRecordsService;
+    private final BorrowRecordMapper recordMapper;
 
-    public BorrowRecordsController(IBorrowRecordsService borrowRecordsService) {
+    public BorrowRecordsController(IBorrowRecordsService borrowRecordsService, BorrowRecordMapper recordMapper) {
         this.borrowRecordsService = borrowRecordsService;
+        this.recordMapper = recordMapper;
     }
 
     @GetMapping
@@ -26,7 +29,7 @@ public class BorrowRecordsController {
 
         // Gọi service đã phân trang
         Page<BorrowRecordResponse> responsePage = borrowRecordsService.getAllBorrowRecords(page, size)
-                .map(this::toBorrowRecordResponse);
+                .map(recordMapper::toBorrowRecordResponse);
 
         return ResponseEntity.ok(responsePage);
     }
@@ -39,14 +42,14 @@ public class BorrowRecordsController {
 
         // Gọi service tìm theo user với phân trang
         Page<BorrowRecordResponse> responsePage = borrowRecordsService.getBorrowRecordsByUser(userId, page, size)
-                .map(this::toBorrowRecordResponse);
+                .map(recordMapper::toBorrowRecordResponse);
 
         return ResponseEntity.ok(responsePage);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<BorrowRecordResponse> getBorrowRecordById(@PathVariable Long id) {
-        return ResponseEntity.ok(toBorrowRecordResponse(borrowRecordsService.getBorrowRecordById(id)));
+        return ResponseEntity.ok(recordMapper.toBorrowRecordResponse(borrowRecordsService.getBorrowRecordById(id)));
     }
 
     @PostMapping("/borrow")
@@ -59,17 +62,5 @@ public class BorrowRecordsController {
     public ResponseEntity<Void> returnBook(@PathVariable Long id) {
         borrowRecordsService.returnBook(id);
         return ResponseEntity.noContent().build();
-    }
-
-    private BorrowRecordResponse toBorrowRecordResponse(BorrowRecords record) {
-        Long uId = record.getUser() != null ? record.getUser().getUserId() : null;
-        String uName = record.getUser() != null ? record.getUser().getUsername() : null;
-        Long bId = record.getBook() != null ? record.getBook().getBookId() : null;
-        String bTitle = record.getBook() != null ? record.getBook().getTitle() : null;
-
-        return new BorrowRecordResponse(
-                record.getId(), uId, uName, bId, bTitle,
-                record.getBorrowDate(), record.getDueDate(), record.getReturnDate(), record.getStatus()
-        );
     }
 }

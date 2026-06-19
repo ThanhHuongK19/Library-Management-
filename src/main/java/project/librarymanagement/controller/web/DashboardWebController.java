@@ -10,7 +10,8 @@ import project.librarymanagement.service.interfaces.IDashboardService;
 @Controller
 @RequestMapping("/admin/dashboard")
 public class DashboardWebController {
-    @Autowired private IDashboardService dashboardService;
+    @Autowired
+    private IDashboardService dashboardService;
 
     @GetMapping
     public String dashboard(Model model) {

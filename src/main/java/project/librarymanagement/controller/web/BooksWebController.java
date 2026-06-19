@@ -11,6 +11,7 @@ import project.librarymanagement.dto.request.CreateBookRequest;
 import project.librarymanagement.dto.request.UpdateBookRequest;
 import project.librarymanagement.dto.response.BookResponse;
 import project.librarymanagement.entity.Books;
+import project.librarymanagement.mapper.BookMapper;
 import project.librarymanagement.service.interfaces.IBooksService;
 import project.librarymanagement.service.interfaces.ICategoriesService;
 
@@ -20,10 +21,12 @@ public class BooksWebController {
 
     private final IBooksService bookService;
     private final ICategoriesService categoryService;
+    private final BookMapper bookMapper;
 
-    public BooksWebController(IBooksService bookService, ICategoriesService categoryService) {
+    public BooksWebController(IBooksService bookService, ICategoriesService categoryService, BookMapper bookMapper) {
         this.bookService = bookService;
         this.categoryService = categoryService;
+        this.bookMapper = bookMapper;
     }
     /**
      * 1. GET: Hiển thị danh sách sách (Đã đồng bộ map sang BookResponse)
@@ -41,11 +44,11 @@ public class BooksWebController {
 
             if (keyword != null && !keyword.trim().isEmpty()) {
                 booksPage = bookService.searchBooksByKeyword(keyword.trim(), page, size)
-                        .map(this::toBookResponse);
+                        .map(bookMapper::toBookResponse);
                 model.addAttribute("keyword", keyword);
             } else {
                 booksPage = bookService.getAllBooks(page, size, sortBy, "asc")
-                        .map(this::toBookResponse);
+                        .map(bookMapper::toBookResponse);
             }
 
             model.addAttribute("books", booksPage);
@@ -176,27 +179,5 @@ public class BooksWebController {
             // Nếu có lỗi (Ví dụ: Sách này đang được mượn, không thể xóa vì ràng buộc DB)
             return "redirect:/books?error=DeleteFailed";
         }
-    }
-
-    private BookResponse toBookResponse(Books book) {
-        Long categoryId = null;
-        String categoryName = null;
-
-        if (book.getCategory() != null) {
-            categoryId = book.getCategory().getCategoryId();
-            categoryName = book.getCategory().getCategoryName();
-        }
-
-        return new BookResponse(
-                book.getBookId(),
-                book.getTitle(),
-                book.getAuthor(),
-                book.getIsbn(),
-                book.getQuantity(),
-                book.getPublisher(),
-                book.getPublishYear(),
-                categoryId,
-                categoryName
-        );
     }
 }

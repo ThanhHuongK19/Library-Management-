@@ -1,30 +1,3 @@
-<!--<!DOCTYPE html>-->
-<!--<html xmlns:th="http://www.thymeleaf.org" lang="vi">-->
-<!--<head>-->
-<!--    <title>Sửa Thể Loại</title>-->
-<!--    <script src="https://cdn.tailwindcss.com"></script>-->
-<!--</head>-->
-<!--<body class="bg-gray-50 p-8">-->
-<!--<div class="max-w-md mx-auto bg-white p-8 rounded-xl shadow-sm border">-->
-<!--    <h1 class="text-xl font-bold mb-6">Chỉnh sửa thể loại</h1>-->
-<!--    <form th:action="@{/categories/update/{id}(id=${category.categoryId})}" th:object="${category}" method="POST">-->
-<!--        <div class="mb-4">-->
-<!--            <label class="block text-sm font-medium mb-1">Tên thể loại</label>-->
-<!--            <input type="text" th:field="*{categoryName}" class="w-full border rounded-lg px-4 py-2">-->
-<!--        </div>-->
-<!--        <div class="mb-6">-->
-<!--            <label class="block text-sm font-medium mb-1">Mô tả</label>-->
-<!--            <textarea th:field="*{description}" class="w-full border rounded-lg px-4 py-2"></textarea>-->
-<!--        </div>-->
-<!--        <div class="flex gap-2">-->
-<!--            <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold">Lưu thay đổi</button>-->
-<!--            <a th:href="@{/categories}" class="bg-gray-200 px-6 py-2 rounded-lg">Hủy</a>-->
-<!--        </div>-->
-<!--    </form>-->
-<!--</div>-->
-<!--</body>-->
-<!--</html>-->
-
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
@@ -60,7 +33,7 @@
                 <a th:href="@{/home}" class="px-3 py-2 rounded-xl text-slate-600 hover:text-primary hover:bg-blue-50 transition">Trang chủ</a>
                 <a th:href="@{/books}" class="px-3 py-2 rounded-xl text-slate-600 hover:text-primary hover:bg-blue-50 transition">Sách</a>
                 <a sec:authorize="hasRole('USER')" th:href="@{/borrow-records}" class="px-3 py-2 rounded-xl text-slate-600 hover:text-primary hover:bg-blue-50 transition">Lịch sử mượn</a>
-                <a sec:authorize="hasRole('ADMIN')" th:href="@{/categories}" class="px-3 py-2 rounded-xl text-primary bg-blue-50 transition">Thể loại</a>
+                <a sec:authorize="hasRole('ADMIN')" th:href="@{/categories}" class="px-3 py-2 rounded-xl text-slate-600 hover:text-primary hover:bg-blue-50 transition">Thể loại</a>
                 <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/dashboard}" class="px-3 py-2 rounded-xl text-slate-600 hover:text-primary hover:bg-blue-50 transition">Dashboard</a>
             </div>
 

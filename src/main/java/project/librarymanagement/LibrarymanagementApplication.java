@@ -17,7 +17,7 @@ public class LibrarymanagementApplication {
 		try {
 			String os = System.getProperty("os.name").toLowerCase();
 
-			// Chỉ áp dụng tự động trên Windows (Hệ điều hành bạn đang dùng)
+			// Chỉ áp dụng tự động trên Windows
 			if (os.contains("win")) {
 				// Lệnh tìm PID đang chiếm port
 				Process process = Runtime.getRuntime().exec("cmd.exe /c netstat -ano | findstr :" + port);

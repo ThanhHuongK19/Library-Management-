@@ -3,6 +3,7 @@ package project.librarymanagement.controller;
 import project.librarymanagement.dto.request.UpdateUserRequest;
 import project.librarymanagement.dto.response.UserResponse;
 import project.librarymanagement.entity.Users;
+import project.librarymanagement.mapper.UserMapper;
 import project.librarymanagement.service.interfaces.IUsersService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -18,16 +19,18 @@ import java.util.stream.Collectors;
 public class UsersController {
 
     private final IUsersService usersService;
+    private final UserMapper userMapper;
 
-    public UsersController(IUsersService usersService) {
+    public UsersController(IUsersService usersService, UserMapper userMapper) {
         this.usersService = usersService;
+        this.userMapper = userMapper;
     }
 
     @GetMapping
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         List<UserResponse> users = usersService.getAllUsers()
                 .stream()
-                .map(this::mapToUserResponse)
+                .map(userMapper::toUserResponse)
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(users);
@@ -38,7 +41,7 @@ public class UsersController {
             @PathVariable Long id
     ) {
         return ResponseEntity.ok(
-                mapToUserResponse(usersService.getUserById(id))
+                userMapper.toUserResponse(usersService.getUserById(id))
         );
     }
 
@@ -47,7 +50,7 @@ public class UsersController {
             @PathVariable String username
     ) {
         return ResponseEntity.ok(
-                mapToUserResponse(usersService.getUserByUsername(username))
+                userMapper.toUserResponse(usersService.getUserByUsername(username))
         );
     }
 
@@ -56,7 +59,7 @@ public class UsersController {
             @PathVariable String email
     ) {
         return ResponseEntity.ok(
-                mapToUserResponse(usersService.getUserByEmail(email))
+                userMapper.toUserResponse(usersService.getUserByEmail(email))
         );
     }
 
@@ -67,7 +70,7 @@ public class UsersController {
         Users createdUser = usersService.createUser(user);
 
         return new ResponseEntity<>(
-                mapToUserResponse(createdUser),
+                userMapper.toUserResponse(createdUser),
                 HttpStatus.CREATED
         );
     }
@@ -80,7 +83,7 @@ public class UsersController {
         Users updatedUser = usersService.updateUser(id, request);
 
         return ResponseEntity.ok(
-                mapToUserResponse(updatedUser)
+                userMapper.toUserResponse(updatedUser)
         );
     }
 
@@ -107,22 +110,6 @@ public class UsersController {
     ) {
         return ResponseEntity.ok(
                 usersService.existsUserByEmail(email)
-        );
-    }
-
-    private UserResponse mapToUserResponse(Users user) {
-        Set<String> roles = user.getRoles()
-                .stream()
-                .map(role -> role.getRoleName().name())
-                .collect(Collectors.toSet());
-
-        return new UserResponse(
-                user.getUserId(),
-                user.getUsername(),
-                user.getEmail(),
-                user.getFullName(),
-                user.getIsActive(),
-                roles
         );
     }
 }

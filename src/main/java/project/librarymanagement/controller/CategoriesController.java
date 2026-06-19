@@ -5,6 +5,7 @@ import project.librarymanagement.dto.request.CreateCategoryRequest;
 import project.librarymanagement.dto.request.UpdateCategoryRequest;
 import project.librarymanagement.dto.response.CategoryResponse;
 import project.librarymanagement.entity.Categories;
+import project.librarymanagement.mapper.CategoryMapper;
 import project.librarymanagement.service.interfaces.ICategoriesService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -16,11 +17,14 @@ import org.springframework.web.bind.annotation.*;
 public class CategoriesController {
 
     private final ICategoriesService categoriesService;
+    private final CategoryMapper categoryMapper;
 
     public CategoriesController(
-            ICategoriesService categoriesService
+            ICategoriesService categoriesService,
+            CategoryMapper categoryMapper
     ) {
         this.categoriesService = categoriesService;
+        this.categoryMapper = categoryMapper;
     }
 
     @GetMapping
@@ -29,7 +33,7 @@ public class CategoriesController {
             @RequestParam(defaultValue = "10") int size) {
 
         Page<Categories> categoriesPage = categoriesService.getAllCategories(page, size);
-        Page<CategoryResponse> responsePage = categoriesPage.map(this::toCategoryResponse);
+        Page<CategoryResponse> responsePage = categoriesPage.map(categoryMapper::toCategoryResponse);
 
         return ResponseEntity.ok(responsePage);
     }
@@ -40,7 +44,7 @@ public class CategoriesController {
     ) {
 
         return ResponseEntity.ok(
-                toCategoryResponse(
+                categoryMapper.toCategoryResponse(
                         categoriesService.getCategoryById(id)
                 )
         );
@@ -52,7 +56,7 @@ public class CategoriesController {
     ) {
 
         return ResponseEntity.ok(
-                toCategoryResponse(
+                categoryMapper.toCategoryResponse(
                         categoriesService.getCategoryByName(categoryName)
                 )
         );
@@ -67,7 +71,7 @@ public class CategoriesController {
                 categoriesService.createCategory(request);
 
         return new ResponseEntity<>(
-                toCategoryResponse(createdCategory),
+                categoryMapper.toCategoryResponse(createdCategory),
                 HttpStatus.CREATED
         );
     }
@@ -78,7 +82,7 @@ public class CategoriesController {
             @Valid @RequestBody UpdateCategoryRequest request
     ) {
         return ResponseEntity.ok(
-                toCategoryResponse(
+                categoryMapper.toCategoryResponse(
                         categoriesService.updateCategory(id, request)
                 )
         );
@@ -92,15 +96,5 @@ public class CategoriesController {
         categoriesService.deleteCategory(id);
 
         return ResponseEntity.noContent().build();
-    }
-
-    private CategoryResponse toCategoryResponse(
-            Categories category
-    ) {
-        return new CategoryResponse(
-                category.getCategoryId(),
-                category.getCategoryName(),
-                category.getDescription()
-        );
     }
 }

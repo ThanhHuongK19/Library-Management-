@@ -14,6 +14,7 @@ import project.librarymanagement.entity.Books;
 import project.librarymanagement.entity.BorrowRecords;
 import project.librarymanagement.entity.BorrowRecords.BorrowStatus;
 import project.librarymanagement.entity.Users;
+import project.librarymanagement.mapper.BorrowRecordMapper;
 import project.librarymanagement.repository.UsersRepository;
 import project.librarymanagement.service.interfaces.IBooksService;
 import project.librarymanagement.service.interfaces.IBorrowRecordsService;
@@ -31,13 +32,16 @@ public class BorrowRecordsWebController {
     private final IBorrowRecordsService borrowRecordsService;
     private final IBooksService bookService;
     private final UsersRepository usersRepository;
+    private final BorrowRecordMapper recordMapper;
 
     public BorrowRecordsWebController(IBorrowRecordsService borrowRecordsService,
                                       IBooksService bookService,
-                                      UsersRepository usersRepository) {
+                                      UsersRepository usersRepository,
+                                      BorrowRecordMapper recordMapper) {
         this.borrowRecordsService = borrowRecordsService;
         this.bookService = bookService;
         this.usersRepository = usersRepository;
+        this.recordMapper = recordMapper;
     }
 
     /**
@@ -99,7 +103,7 @@ public class BorrowRecordsWebController {
             spec = spec.and((root, query, cb) -> cb.equal(root.get("user").get("userId"), userId));
         }
 
-        Page<BorrowRecordResponse> responsePage = borrowRecordsService.getRecords(spec, page, size).map(this::toBorrowRecordResponse);
+        Page<BorrowRecordResponse> responsePage = borrowRecordsService.getRecords(spec, page, size).map(recordMapper::toBorrowRecordResponse);
 
         model.addAttribute("records", responsePage.getContent());
         model.addAttribute("recordPage", responsePage);
@@ -208,21 +212,5 @@ public class BorrowRecordsWebController {
         } catch (Exception e) {
             return "redirect:/borrow-records?error=true";
         }
-    }
-
-    private BorrowRecordResponse toBorrowRecordResponse(BorrowRecords record) {
-        Long uId = null; String uName = null; Long bId = null; String bTitle = null;
-        if (record.getUser() != null) {
-            uId = record.getUser().getUserId();
-            uName = record.getUser().getUsername();
-        }
-        if (record.getBook() != null) {
-            bId = record.getBook().getBookId();
-            bTitle = record.getBook().getTitle();
-        }
-        return new BorrowRecordResponse(
-                record.getId(), uId, uName, bId, bTitle,
-                record.getBorrowDate(), record.getDueDate(), record.getReturnDate(), record.getStatus()
-        );
     }
 }
